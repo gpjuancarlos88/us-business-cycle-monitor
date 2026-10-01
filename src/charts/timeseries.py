@@ -2,7 +2,17 @@ from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
 
+DEFAULT_CHART_START = pd.Timestamp("1960-01-01")
+
+
+def _from_default_start(series: pd.Series | None) -> pd.Series | None:
+    if series is None or series.empty:
+        return series
+    return series[series.index >= DEFAULT_CHART_START]
+
+
 def add_recession_shading(fig: go.Figure, recession: pd.Series | None):
+    recession = _from_default_start(recession)
     if recession is None or recession.empty:
         return fig
     active = recession.fillna(0).astype(int)
@@ -16,10 +26,13 @@ def add_recession_shading(fig: go.Figure, recession: pd.Series | None):
         fig.add_vrect(x0=a, x1=b, opacity=0.12, line_width=0)
     return fig
 
+
 def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False):
+    series = _from_default_start(series)
     fig=go.Figure()
     fig.add_trace(go.Scatter(x=series.index,y=series.values,mode="lines",name=title))
     if zero_line: fig.add_hline(y=0,line_dash="dash",opacity=0.5)
     add_recession_shading(fig,recession)
     fig.update_layout(title=title, template="plotly_dark", height=430, margin=dict(l=20,r=20,t=55,b=20), showlegend=False)
+    fig.update_xaxes(range=[DEFAULT_CHART_START, None])
     return fig
