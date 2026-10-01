@@ -142,7 +142,13 @@ def render_overview(project_root: str):
                 fig.add_vrect(x0=start,x1=dt,opacity=.11,line_width=0); start=None
     fig.add_hline(y=0,line_dash="dash",opacity=.5)
     fig.update_layout(template="plotly_dark",height=450,margin=dict(l=20,r=20,t=20,b=20),legend=dict(orientation="h"))
-    xmax_candidates=[]\n    if not lead.empty: xmax_candidates.append(lead.index.max())\n    if not coi.empty: xmax_candidates.append(coi.index.max())\n    if xmax_candidates:\n        fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
+    xmax_candidates=[]
+    if not lead.empty:
+        xmax_candidates.append(lead.index.max())
+    if not coi.empty:
+        xmax_candidates.append(coi.index.max())
+    if xmax_candidates:
+        fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
     st.plotly_chart(fig,use_container_width=True)
 
     st.subheader("Lagging conditions")
