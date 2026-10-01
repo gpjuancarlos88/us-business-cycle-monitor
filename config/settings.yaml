@@ -1,0 +1,15 @@
+app:
+  title: "U.S. Business Cycle Monitor"
+  default_history_years: 10
+  recession_shading: true
+
+signals:
+  zscore_window_months: 120
+  zscore_min_periods: 36
+  winsor_limit: 3.0
+  neutral_band: 0.25
+  strong_threshold: 1.0
+  leading_min_coverage: 7
+  coincident_min_coverage: 3
+  growth_weight_leading: 0.70
+  growth_weight_coincident_momentum: 0.30

@@ -1,0 +1,310 @@
+indicators:
+  - id: manufacturing_hours
+    name: Manufacturing Weekly Hours
+    short_name: Weekly Hours
+    category: leading
+    provider: fred
+    series_id: AWHMAN
+    frequency: monthly
+    units: hours
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 1
+    exact: true
+    description: Average weekly hours of production and nonsupervisory employees in manufacturing.
+
+  - id: initial_claims
+    name: Initial Jobless Claims
+    short_name: Initial Claims
+    category: leading
+    provider: fred
+    series_id: ICSA
+    frequency: weekly
+    units: persons
+    monthly_aggregation: claims_4wk_last
+    signal_transform: yoy_pct
+    direction: -1
+    exact: true
+    description: New unemployment insurance claims; lower readings are generally stronger.
+
+  - id: consumer_goods_orders
+    name: Consumer Goods Orders
+    short_name: Consumer Orders
+    category: leading
+    provider: fred
+    series_id: ACOGNO
+    frequency: monthly
+    units: index_or_value
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: false
+    proxy_note: Public proxy for the Conference Board consumer goods and materials orders component.
+    description: Manufacturers' new orders for consumer goods.
+
+  - id: ism_new_orders
+    name: ISM Manufacturing New Orders
+    short_name: ISM New Orders
+    category: leading
+    provider: manual
+    path: data/manual/ism_new_orders.csv
+    frequency: monthly
+    units: index
+    monthly_aggregation: last
+    signal_transform: ism_distance_50
+    direction: 1
+    exact: true
+    description: ISM Manufacturing New Orders diffusion index; values above 50 indicate expansion.
+
+  - id: cap_goods_ex_air
+    name: Nondefense Capital Goods ex Aircraft
+    short_name: Cap Goods ex Air
+    category: leading
+    provider: fred
+    series_id: NEWORDER
+    frequency: monthly
+    units: millions_usd
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: Manufacturers' new orders for nondefense capital goods excluding aircraft.
+
+  - id: building_permits
+    name: Building Permits
+    short_name: Building Permits
+    category: leading
+    provider: fred
+    series_id: PERMIT
+    frequency: monthly
+    units: thousands_saar
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: New privately owned housing units authorized by building permits.
+
+  - id: sp500
+    name: S&P 500
+    short_name: S&P 500
+    category: leading
+    provider: yahoo
+    ticker: ^GSPC
+    frequency: daily
+    units: index
+    monthly_aggregation: mean
+    signal_transform: return_6m
+    direction: 1
+    exact: true
+    description: S&P 500 price index, using Yahoo Finance for long practical history.
+
+  - id: financial_conditions
+    name: Financial Conditions Leading Signal
+    short_name: Financial Conditions
+    category: leading
+    provider: fred
+    series_id: NFCI
+    frequency: weekly
+    units: index
+    monthly_aggregation: mean
+    signal_transform: level
+    direction: -1
+    exact: false
+    proxy_note: Public proxy for the proprietary Conference Board Leading Credit Index.
+    description: Chicago Fed National Financial Conditions Index; tighter conditions are economically negative.
+
+  - id: yield_spread
+    name: 10Y Treasury minus Federal Funds Rate
+    short_name: Yield Spread
+    category: leading
+    provider: fred
+    series_id: T10YFF
+    frequency: daily
+    units: percentage_points
+    monthly_aggregation: mean
+    signal_transform: level
+    direction: 1
+    exact: true
+    description: Ten-year Treasury constant maturity rate minus the effective federal funds rate.
+
+  - id: consumer_expectations
+    name: Consumer Expectations Proxy
+    short_name: Expectations
+    category: leading
+    provider: fred
+    series_id: UMCSENT
+    frequency: monthly
+    units: index
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 1
+    exact: false
+    proxy_note: University of Michigan headline sentiment is used until an exact expectations blend is supplied.
+    description: Public sentiment proxy for the Conference Board/Michigan expectations component.
+
+  - id: payrolls
+    name: Nonfarm Payroll Employment
+    short_name: Payrolls
+    category: coincident
+    provider: fred
+    series_id: PAYEMS
+    frequency: monthly
+    units: thousands_persons
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: Total nonfarm payroll employment.
+
+  - id: industrial_production
+    name: Industrial Production
+    short_name: Industrial Production
+    category: coincident
+    provider: fred
+    series_id: INDPRO
+    frequency: monthly
+    units: index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: Federal Reserve industrial production index.
+
+  - id: real_income_ex_transfers
+    name: Real Personal Income ex Transfers
+    short_name: Real Income ex Transfers
+    category: coincident
+    provider: fred
+    series_id: W875RX1
+    frequency: monthly
+    units: chained_billions_saar
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: Real personal income excluding current transfer receipts.
+
+  - id: real_manufacturing_trade_sales
+    name: Real Manufacturing and Trade Sales
+    short_name: Real Sales
+    category: coincident
+    provider: fred
+    series_id: CMRMTSPL
+    frequency: monthly
+    units: chained_millions
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 1
+    exact: true
+    description: Real manufacturing and trade industries sales.
+
+  - id: unemployment_duration
+    name: Average Duration of Unemployment
+    short_name: Unemployment Duration
+    category: lagging
+    subgroup: labor
+    provider: fred
+    series_id: UEMPMEAN
+    frequency: monthly
+    units: weeks
+    monthly_aggregation: last
+    signal_transform: level
+    direction: -1
+    exact: true
+    description: Average number of weeks unemployed.
+
+  - id: inventory_sales_ratio
+    name: Total Business Inventories to Sales Ratio
+    short_name: Inventory / Sales
+    category: lagging
+    subgroup: credit_inventory
+    provider: fred
+    series_id: ISRATIO
+    frequency: monthly
+    units: ratio
+    monthly_aggregation: last
+    signal_transform: level
+    direction: -1
+    exact: true
+    description: Total business inventories divided by sales.
+
+  - id: services_inflation
+    name: Services Inflation
+    short_name: Services Inflation
+    category: lagging
+    subgroup: inflation_rates
+    provider: fred
+    series_id: CUSR0000SAS
+    frequency: monthly
+    units: cpi_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    description: CPI for services; shown as inflation level and momentum rather than a simple good/bad signal.
+
+  - id: unit_labor_costs
+    name: Manufacturing Unit Labor Costs
+    short_name: Unit Labor Costs
+    category: lagging
+    subgroup: labor
+    provider: fred
+    series_id: ULCMFG
+    frequency: quarterly
+    units: index
+    monthly_aggregation: carry_forward
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    description: Manufacturing sector unit labor costs.
+
+  - id: real_ci_loans
+    name: Real Commercial and Industrial Loans
+    short_name: Real C&I Loans
+    category: lagging
+    subgroup: credit_inventory
+    provider: derived
+    frequency: monthly
+    units: real_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: false
+    inputs:
+      numerator: {provider: fred, series_id: BUSLOANS}
+      denominator: {provider: fred, series_id: PCEPI}
+    operation: deflate_index
+    description: C&I loans deflated by the PCE price index.
+
+  - id: consumer_credit_income
+    name: Consumer Credit to Personal Income
+    short_name: Credit / Income
+    category: lagging
+    subgroup: credit_inventory
+    provider: derived
+    frequency: monthly
+    units: ratio
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: false
+    inputs:
+      numerator: {provider: fred, series_id: TOTALSL, unit_scale: 0.001}
+      denominator: {provider: fred, series_id: PI, unit_scale: 1}
+    operation: ratio
+    description: Total consumer credit divided by annualized personal income; public reproducible proxy for installment credit/income.
+
+  - id: prime_rate
+    name: Average Prime Rate
+    short_name: Prime Rate
+    category: lagging
+    subgroup: inflation_rates
+    provider: fred
+    series_id: DPRIME
+    frequency: daily
+    units: percent
+    monthly_aggregation: mean
+    signal_transform: level
+    direction: 0
+    exact: true
+    description: Bank prime loan rate, converted to a monthly average.
