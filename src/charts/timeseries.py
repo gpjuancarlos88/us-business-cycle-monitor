@@ -34,5 +34,5 @@ def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None
     if zero_line: fig.add_hline(y=0,line_dash="dash",opacity=0.5)
     add_recession_shading(fig,recession)
     fig.update_layout(title=title, template="plotly_dark", height=430, margin=dict(l=20,r=20,t=55,b=20), showlegend=False)
-    fig.update_xaxes(range=[DEFAULT_CHART_START, None])
+    if not series.empty:\n        fig.update_xaxes(range=[DEFAULT_CHART_START, series.index.max()])
     return fig
