@@ -77,8 +77,10 @@ def _heatmap(project_root: str, category: str):
     metrics=["Signal","Momentum"]
     z=table[metrics].astype(float).to_numpy()
     text=np.vectorize(lambda x: "—" if pd.isna(x) else f"{x:.2f}")(z)
+    category_tag={"leading":"LEI","coincident":"C","lagging":"Lag"}[category]
+    heatmap_labels=table["Indicator"].astype(str) + f" ({category_tag})"
     fig=go.Figure(data=go.Heatmap(
-        z=z, x=metrics, y=table["Indicator"], text=text, texttemplate="%{text}",
+        z=z, x=metrics, y=heatmap_labels, text=text, texttemplate="%{text}",
         zmid=0, zmin=-2, zmax=2, colorscale="RdYlGn", colorbar=dict(title="σ")
     ))
     fig.update_layout(template="plotly_dark", height=max(360, 46*len(table)), margin=dict(l=15,r=20,t=30,b=25))
