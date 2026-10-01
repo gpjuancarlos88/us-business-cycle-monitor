@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.app_core import MacroMonitor
-from src.charts.timeseries import line_chart
+from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
 
 @st.cache_resource
@@ -135,13 +135,14 @@ def render_overview(project_root: str):
     if not lead.empty: fig.add_trace(go.Scatter(x=lead.index,y=lead["score"],name="Leading",mode="lines"))
     if not coi.empty: fig.add_trace(go.Scatter(x=coi.index,y=coi["score"],name="Coincident",mode="lines"))
     if not recession.empty:
-        active=recession.fillna(0).astype(int); start=None
+        active=recession[recession.index >= DEFAULT_CHART_START].fillna(0).astype(int); start=None
         for dt,val in active.items():
             if val==1 and start is None: start=dt
             elif val==0 and start is not None:
                 fig.add_vrect(x0=start,x1=dt,opacity=.11,line_width=0); start=None
     fig.add_hline(y=0,line_dash="dash",opacity=.5)
     fig.update_layout(template="plotly_dark",height=450,margin=dict(l=20,r=20,t=20,b=20),legend=dict(orientation="h"))
+    fig.update_xaxes(range=[DEFAULT_CHART_START, None])
     st.plotly_chart(fig,use_container_width=True)
 
     st.subheader("Lagging conditions")
