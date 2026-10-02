@@ -246,11 +246,19 @@ def render_indicator(project_root: str):
     c.metric("Signal",f"{fmt(row.get('signal'))}σ",signal_label(row.get("signal")))
     d.metric("Momentum",f"{fmt(row.get('momentum'))}σ")
     metric=st.radio("View",["level","yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"],horizontal=True)
+    scale=st.radio("Y-axis scale",["Robust","Full"],horizontal=True,help="Robust zooms to the normal historical range without changing the underlying data. Full shows every extreme observation.")
     yrs=st.select_slider("History",options=[3,5,10,20,40],value=10)
     series=m[metric].dropna()
     cutoff=series.index.max()-pd.DateOffset(years=yrs) if not series.empty else None
     if cutoff is not None: series=series[series.index>=cutoff]
-    st.plotly_chart(line_chart(series,metric.replace("_"," ").title(),_recession(project_root),zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"},start_at_data=True),use_container_width=True)
+    st.plotly_chart(line_chart(
+        series,
+        metric.replace("_"," ").title(),
+        _recession(project_root),
+        zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"},
+        start_at_data=True,
+        robust_y=scale=="Robust",
+    ),use_container_width=True)
     st.markdown(f"**Source:** `{spec.get('provider')}`  ·  **Frequency:** {spec.get('frequency')}  ·  **Component quality:** {'Exact/public' if spec.get('exact') else 'Proxy/constructed'}")
 
 
