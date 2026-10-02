@@ -12,6 +12,7 @@ indicators:
     direction: 1
     exact: true
     description: Average weekly hours of production and nonsupervisory employees in manufacturing.
+    why_it_matters: Employers often adjust hours before changing headcount, so rising hours can signal strengthening production demand while falling hours can precede layoffs.
 
   - id: initial_claims
     name: Initial Jobless Claims
@@ -26,6 +27,7 @@ indicators:
     direction: -1
     exact: true
     description: New unemployment insurance claims; lower readings are generally stronger.
+    why_it_matters: Claims react quickly when firms begin cutting labor. Sustained increases usually indicate weakening labor demand before the unemployment rate fully responds.
 
   - id: consumer_goods_orders
     name: Consumer Goods Orders
@@ -41,6 +43,7 @@ indicators:
     exact: false
     proxy_note: Public proxy for the Conference Board consumer goods and materials orders component.
     description: Manufacturers' new orders for consumer goods.
+    why_it_matters: New orders capture expected future production. When consumers and distributors order more goods, manufacturers typically need to increase output in coming months.
 
   - id: ism_new_orders
     name: ISM Manufacturing New Orders
@@ -55,6 +58,7 @@ indicators:
     direction: 1
     exact: true
     description: ISM Manufacturing New Orders diffusion index; values above 50 indicate expansion.
+    why_it_matters: New orders are one of the earliest signals in the manufacturing cycle. Readings above 50 indicate more firms reporting increases than decreases.
 
   - id: cap_goods_ex_air
     name: Nondefense Capital Goods ex Aircraft
@@ -69,6 +73,7 @@ indicators:
     direction: 1
     exact: true
     description: Manufacturers' new orders for nondefense capital goods excluding aircraft.
+    why_it_matters: This series is a widely used gauge of business equipment investment intentions. Weakening orders can indicate firms are becoming more cautious about future capital spending.
 
   - id: building_permits
     name: Building Permits
@@ -83,6 +88,7 @@ indicators:
     direction: 1
     exact: true
     description: New privately owned housing units authorized by building permits.
+    why_it_matters: A permit is required before most residential construction begins, so permits provide an early read on future housing activity, construction employment, and related demand.
 
   - id: sp500
     name: S&P 500
@@ -97,6 +103,7 @@ indicators:
     direction: 1
     exact: true
     description: S&P 500 price index, using Yahoo Finance for long practical history.
+    why_it_matters: Equity prices incorporate investors' expectations for future earnings, growth, financial conditions, and risk, which makes the stock market forward-looking even though it is noisy.
 
   - id: financial_conditions
     name: Financial Conditions Leading Signal
@@ -112,6 +119,7 @@ indicators:
     exact: false
     proxy_note: Public proxy for the proprietary Conference Board Leading Credit Index.
     description: Chicago Fed National Financial Conditions Index; tighter conditions are economically negative.
+    why_it_matters: Credit availability, leverage, funding costs, and market stress influence how easily households and businesses can borrow and invest. Tighter conditions can restrain future activity.
 
   - id: yield_spread
     name: 10Y Treasury minus Federal Funds Rate
@@ -126,6 +134,7 @@ indicators:
     direction: 1
     exact: true
     description: Ten-year Treasury constant maturity rate minus the effective federal funds rate.
+    why_it_matters: The spread summarizes the slope between long-term and short-term rates. A compressed or inverted spread has historically been associated with restrictive monetary conditions and weaker future growth.
 
   - id: consumer_expectations
     name: Consumer Expectations Proxy
@@ -141,6 +150,7 @@ indicators:
     exact: false
     proxy_note: University of Michigan headline sentiment is used until an exact expectations blend is supplied.
     description: Public sentiment proxy for the Conference Board/Michigan expectations component.
+    why_it_matters: Consumer expectations influence spending and saving decisions. A sustained deterioration can signal households are becoming more cautious about future economic conditions.
 
   - id: payrolls
     name: Nonfarm Payroll Employment
@@ -155,6 +165,7 @@ indicators:
     direction: 1
     exact: true
     description: Total nonfarm payroll employment.
+    why_it_matters: Payrolls measure the number of jobs on employer payrolls and are one of the clearest gauges of current labor-market activity. Strong job creation generally accompanies economic expansion.
 
   - id: industrial_production
     name: Industrial Production
@@ -169,6 +180,7 @@ indicators:
     direction: 1
     exact: true
     description: Federal Reserve industrial production index.
+    why_it_matters: Industrial production tracks real output in manufacturing, mining, and utilities, providing a direct measure of current goods-producing activity.
 
   - id: real_income_ex_transfers
     name: Real Personal Income ex Transfers
@@ -183,6 +195,7 @@ indicators:
     direction: 1
     exact: true
     description: Real personal income excluding current transfer receipts.
+    why_it_matters: This measure focuses on income generated by economic activity rather than government transfers. Rising real income supports household purchasing power and current demand.
 
   - id: real_manufacturing_trade_sales
     name: Real Manufacturing and Trade Sales
@@ -197,6 +210,7 @@ indicators:
     direction: 1
     exact: true
     description: Real manufacturing and trade industries sales.
+    why_it_matters: Real sales capture the volume of goods moving through manufacturers, wholesalers, and retailers, making them a broad measure of current business activity.
 
   - id: unemployment_duration
     name: Average Duration of Unemployment
@@ -212,6 +226,7 @@ indicators:
     direction: -1
     exact: true
     description: Average number of weeks unemployed.
+    why_it_matters: Unemployment duration usually rises after labor-market conditions have already weakened, which is why it is considered lagging. Persistent increases indicate workers are taking longer to find jobs.
 
   - id: inventory_sales_ratio
     name: Total Business Inventories to Sales Ratio
@@ -227,6 +242,7 @@ indicators:
     direction: -1
     exact: true
     description: Total business inventories divided by sales.
+    why_it_matters: A rising ratio can mean inventories are accumulating faster than sales, often because demand weakened unexpectedly. Firms may respond later by cutting production.
 
   - id: services_inflation
     name: Services Inflation
@@ -242,6 +258,7 @@ indicators:
     direction: 0
     exact: true
     description: CPI for services; shown as inflation level and momentum rather than a simple good/bad signal.
+    why_it_matters: Services inflation tends to be persistent and can remain elevated after demand has already changed, making it useful for judging late-cycle inflation pressure.
 
   - id: unit_labor_costs
     name: Manufacturing Unit Labor Costs
@@ -257,6 +274,7 @@ indicators:
     direction: 0
     exact: true
     description: Manufacturing sector unit labor costs.
+    why_it_matters: Unit labor costs compare worker compensation with output. Rapid increases can signal margin pressure and persistent inflationary pressure after the economy has already strengthened.
 
   - id: real_ci_loans
     name: Real Commercial and Industrial Loans
@@ -275,6 +293,7 @@ indicators:
       denominator: {provider: fred, series_id: PCEPI}
     operation: deflate_index
     description: C&I loans deflated by the PCE price index.
+    why_it_matters: Commercial and industrial loan growth shows how much bank credit businesses are using. Credit often continues expanding after economic activity has already accelerated, making it lagging.
 
   - id: consumer_credit_income
     name: Consumer Credit to Personal Income
@@ -293,6 +312,7 @@ indicators:
       denominator: {provider: fred, series_id: PI, unit_scale: 1}
     operation: ratio
     description: Total consumer credit divided by annualized personal income; public reproducible proxy for installment credit/income.
+    why_it_matters: This ratio indicates how large household credit balances are relative to income. Rising leverage can reflect strong prior spending but may also leave consumers more financially constrained.
 
   - id: prime_rate
     name: Average Prime Rate
@@ -308,3 +328,4 @@ indicators:
     direction: 0
     exact: true
     description: Bank prime loan rate, converted to a monthly average.
+    why_it_matters: The prime rate follows monetary policy with a lag and affects many borrowing costs. It often remains high after inflation or economic activity has already peaked.
