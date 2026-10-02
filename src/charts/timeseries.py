@@ -35,7 +35,19 @@ def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None
     fig.add_trace(go.Scatter(x=series.index,y=series.values,mode="lines",name=title))
     if zero_line: fig.add_hline(y=0,line_dash="dash",opacity=0.5)
     add_recession_shading(fig,recession)
-    fig.update_layout(title=title, template="plotly_dark", height=430, margin=dict(l=20,r=20,t=55,b=20), showlegend=False)
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=15)),
+        template="plotly_dark",
+        height=430,
+        margin=dict(l=18,r=18,t=52,b=18),
+        showlegend=False,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, Segoe UI, Helvetica Neue, Arial", color="#ECEBF3"),
+        hovermode="x unified",
+    )
+    fig.update_xaxes(showgrid=False, zeroline=False, linecolor="rgba(199,214,213,0.16)", tickfont=dict(color="#C7D6D5"))
+    fig.update_yaxes(gridcolor="rgba(199,214,213,0.08)", zerolinecolor="rgba(199,214,213,0.16)", tickfont=dict(color="#C7D6D5"))
     if not series.empty:
         xmin = series.index.min() if start_at_data else DEFAULT_CHART_START
         fig.update_xaxes(range=[xmin, series.index.max()])
