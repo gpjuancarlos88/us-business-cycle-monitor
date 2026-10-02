@@ -23,14 +23,48 @@ def cached_composite(project_root: str, category: str):
 
 
 def setup_page(title: str):
-    st.set_page_config(page_title=title, page_icon="📈", layout="wide")
+    st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
     <style>
-    .block-container {padding-top: 1.4rem; padding-bottom: 2rem; max-width: 1900px;}
-    [data-testid="stMetric"] {background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); padding: .8rem; border-radius: .55rem;}
+    .block-container {padding-top: .7rem; padding-bottom: 2rem; max-width: 1900px;}
+    [data-testid="stSidebar"] {display: none;}
+    [data-testid="collapsedControl"] {display: none;}
+    [data-testid="stMetric"] {
+        background: rgba(255,255,255,0.035);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: .8rem;
+        border-radius: .55rem;
+    }
+    [data-testid="stPageLink"] a {
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: .45rem;
+        padding: .45rem .65rem;
+        background: rgba(255,255,255,0.025);
+        text-decoration: none;
+    }
+    [data-testid="stPageLink"] a:hover {
+        background: rgba(255,255,255,0.07);
+        border-color: rgba(255,255,255,0.18);
+    }
     .small-muted {opacity: .68; font-size: .88rem;}
     </style>
     """, unsafe_allow_html=True)
+
+    nav = st.columns(6)
+    with nav[0]:
+        st.page_link("app.py", label="Overview", icon=":material/dashboard:")
+    with nav[1]:
+        st.page_link("pages/02_Leading.py", label="Leading", icon=":material/trending_up:")
+    with nav[2]:
+        st.page_link("pages/03_Coincident.py", label="Coincident", icon=":material/timeline:")
+    with nav[3]:
+        st.page_link("pages/04_Lagging.py", label="Lagging", icon=":material/history:")
+    with nav[4]:
+        st.page_link("pages/05_Indicator.py", label="Indicator", icon=":material/query_stats:")
+    with nav[5]:
+        st.page_link("pages/06_Data_Health.py", label="Data", icon=":material/database:")
+    st.divider()
 
 
 def _recession(project_root: str) -> pd.Series:
