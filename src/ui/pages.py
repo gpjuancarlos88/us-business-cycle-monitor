@@ -49,16 +49,20 @@ def setup_page(title: str):
         border-radius: .55rem;
     }
     .st-key-top_nav {
-        position: sticky;
-        top: 2.4rem;
-        z-index: 999;
-        background: rgba(15, 23, 42, 0.96);
+        position: fixed;
+        top: 2.7rem;
+        left: 1.5rem;
+        right: 1.5rem;
+        z-index: 9999;
+        background: rgba(15, 23, 42, 0.97);
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: .65rem;
         padding: .55rem .75rem .45rem .75rem;
-        margin-bottom: .45rem;
         box-shadow: 0 8px 24px rgba(0,0,0,0.30);
         backdrop-filter: blur(10px);
+    }
+    .st-key-top_nav + div {
+        margin-top: 5.2rem;
     }
     [data-testid="stPageLink"] {margin-top: .15rem;}
     [data-testid="stPageLink"] a {
