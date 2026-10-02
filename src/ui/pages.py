@@ -39,7 +39,7 @@ def setup_page(title: str):
     [data-testid="stMetricValue"] {
         font-weight: 600 !important;
     }
-    .block-container {padding-top: 3.2rem; padding-bottom: 2rem; max-width: 1900px;}
+    .block-container {padding-top: 7.4rem; padding-bottom: 2rem; max-width: 1900px;}
     [data-testid="stSidebar"] {display: none;}
     [data-testid="collapsedControl"] {display: none;}
     [data-testid="stMetric"] {
@@ -50,7 +50,7 @@ def setup_page(title: str):
     }
     .st-key-top_nav {
         position: fixed;
-        top: 2.7rem;
+        top: 3.75rem;
         left: 1.5rem;
         right: 1.5rem;
         z-index: 9999;
