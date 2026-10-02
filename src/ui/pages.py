@@ -519,8 +519,9 @@ def render_overview(project_root: str):
         unsafe_allow_html=True,
     )
     mon=get_monitor(project_root)
-    with st.container(key="overview_refresh"):
-        if st.button("Refresh all data", type="primary"):
+    refresh_left, refresh_center, refresh_right = st.columns([1, 0.22, 1])
+    with refresh_center:
+        if st.button("Refresh all data", type="primary", use_container_width=True):
             with st.spinner("Refreshing public and configured manual sources..."):
                 mon.refresh_all()
                 st.cache_data.clear()
