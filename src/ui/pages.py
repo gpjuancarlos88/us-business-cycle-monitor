@@ -222,6 +222,56 @@ def setup_page(title: str):
         margin-top: -.15rem;
         margin-bottom: 1.15rem;
     }
+    .overview-hero-header {
+        text-align: center;
+        padding: 1.35rem 1rem 1.5rem 1rem;
+        margin-bottom: 1.15rem;
+    }
+    .overview-hero-header h1 {
+        margin: 0 0 .55rem 0 !important;
+        font-size: clamp(2.5rem, 4.2vw, 4.4rem) !important;
+        line-height: .98 !important;
+        letter-spacing: -0.035em !important;
+        font-weight: 700 !important;
+    }
+    .overview-hero-subtitle {
+        max-width: 820px;
+        margin: 0 auto .8rem auto;
+        color: #C7D6D5;
+        font-size: 1rem;
+        line-height: 1.55;
+        opacity: .86;
+    }
+    .overview-hero-meta {
+        color: #C7D6D5;
+        opacity: .72;
+        font-size: .72rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+    .st-key-overview_refresh {
+        display: flex;
+        justify-content: center;
+        margin: .2rem 0 1.3rem 0;
+    }
+    .st-key-overview_refresh [data-testid="stButton"] {
+        width: auto;
+    }
+    .st-key-overview_refresh button {
+        min-width: 180px;
+        border-radius: 0 !important;
+        border: 1px solid rgba(199,214,213,0.28) !important;
+        background: transparent !important;
+        color: #ECEBF3 !important;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-weight: 600;
+        padding: .65rem 1.15rem !important;
+    }
+    .st-key-overview_refresh button:hover {
+        background: #C20114 !important;
+        border-color: #C20114 !important;
+    }
     .release-list {margin-top: .35rem;}
     .release-row {
         display: grid;
@@ -452,22 +502,24 @@ def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: 
 
 def render_overview(project_root: str):
     setup_page("U.S. Business Cycle Monitor")
-    st.markdown("<div style='height:.35rem'></div>", unsafe_allow_html=True)
-    st.title("U.S. Business Cycle Monitor")
-    st.caption("A personal macro research terminal: leading, coincident and lagging business-cycle evidence.")
     latest_data = _latest_data_date(project_root)
     data_label = latest_data.strftime("%d %b %Y").upper() if latest_data is not None else "N/A"
     refreshed_label = pd.Timestamp.now().strftime("%d %b %Y · %H:%M").upper()
     st.markdown(
-        f"<div class='terminal-kicker'>DATA THROUGH {data_label} &nbsp;&nbsp;·&nbsp;&nbsp; SESSION REFRESH {refreshed_label}</div>",
+        "<section class='overview-hero-header'>"
+        "<h1>U.S. Business Cycle Monitor</h1>"
+        "<div class='overview-hero-subtitle'>A personal macro research terminal for leading, coincident, and lagging business-cycle evidence.</div>"
+        f"<div class='overview-hero-meta'>DATA THROUGH {data_label} &nbsp;&nbsp;·&nbsp;&nbsp; SESSION REFRESH {refreshed_label}</div>"
+        "</section>",
         unsafe_allow_html=True,
     )
     mon=get_monitor(project_root)
-    if st.button("Refresh all data", type="primary"):
-        with st.spinner("Refreshing public and configured manual sources..."):
-            mon.refresh_all()
-            st.cache_data.clear()
-        st.success("Refresh complete. Missing licensed/manual inputs remain excluded rather than fabricated.")
+    with st.container(key="overview_refresh"):
+        if st.button("Refresh all data", type="primary"):
+            with st.spinner("Refreshing public and configured manual sources..."):
+                mon.refresh_all()
+                st.cache_data.clear()
+            st.success("Refresh complete. Missing licensed/manual inputs remain excluded rather than fabricated.")
 
     lead, ls, lb, lc = _composite_metrics(project_root,"leading")
     coi, cs, cb, cc = _composite_metrics(project_root,"coincident")
