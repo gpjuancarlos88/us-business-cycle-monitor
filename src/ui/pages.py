@@ -110,36 +110,64 @@ def setup_page(title: str):
         border-color: rgba(199,214,213,0.18) !important;
     }
     .overview-panel {
-        background: rgba(109,114,117,0.045);
-        border-top: 1px solid rgba(199,214,213,0.10);
-        border-bottom: 1px solid rgba(199,214,213,0.07);
+        background: transparent;
+        border: none;
         border-radius: 0;
-        padding: 1rem .15rem 1.15rem .15rem;
-        margin-bottom: 1.1rem;
+        padding: 1.5rem 0 1.75rem 0;
+        margin-bottom: 0;
         box-shadow: none;
     }
+    .overview-panel + .overview-panel {
+        border-top: 1px solid rgba(199,214,213,0.10);
+    }
     .overview-panel-accent {
-        border-top: 2px solid rgba(194,1,20,0.55);
+        border-top: none;
     }
     .st-key-overview_left_rail {
-        background: rgba(109,114,117,0.065);
+        background: rgba(109,114,117,0.055);
         border: none;
-        border-right: 1px solid rgba(199,214,213,0.14);
+        border-right: 1px solid rgba(199,214,213,0.12);
         border-radius: 0;
-        padding: 1rem 1.35rem 1rem .25rem;
+        padding: 1.5rem 1.75rem 1.5rem .5rem;
         box-shadow: none;
         min-height: 100%;
     }
     .st-key-overview_left_rail h3 {
-        margin-top: .15rem !important;
+        margin-top: 0 !important;
+        font-size: 1.15rem !important;
+        text-transform: uppercase;
+        letter-spacing: .055em !important;
+        padding-bottom: .45rem;
+        border-bottom: 1px solid rgba(199,214,213,0.10);
     }
     .st-key-overview_main {
-        padding-left: .25rem;
+        padding-left: .75rem;
     }
-    .st-key-overview_main h3,
-    .st-key-overview_left_rail h3 {
-        padding-bottom: .35rem;
-        border-bottom: 1px solid rgba(199,214,213,0.10);
+    .st-key-overview_main h3 {
+        font-size: 1.45rem !important;
+        text-transform: uppercase;
+        letter-spacing: .035em !important;
+        margin-top: .15rem !important;
+        margin-bottom: 1rem !important;
+    }
+    .st-key-overview_main [data-testid="stMetric"] {
+        background: rgba(109,114,117,0.10);
+        border: none;
+        border-top: 1px solid rgba(199,214,213,0.12);
+        border-radius: 0;
+    }
+    .st-key-overview_main [data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+    }
+    .st-key-overview_left_rail [data-testid="stMarkdownContainer"] p {
+        line-height: 1.6;
+    }
+    .st-key-overview_left_rail hr {
+        border-color: rgba(199,214,213,0.10) !important;
+        margin: 1.5rem 0 !important;
+    }
+    .st-key-overview_main [data-testid="stPlotlyChart"] {
+        margin-top: .35rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -303,8 +331,10 @@ def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: 
 
 def render_overview(project_root: str):
     setup_page("U.S. Business Cycle Monitor")
+    st.markdown("<div style='height:.5rem'></div>", unsafe_allow_html=True)
     st.title("U.S. Business Cycle Monitor")
     st.caption("A personal macro research terminal: leading, coincident and lagging business-cycle evidence.")
+    st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
     mon=get_monitor(project_root)
     if st.button("Refresh all data", type="primary"):
         with st.spinner("Refreshing public and configured manual sources..."):
