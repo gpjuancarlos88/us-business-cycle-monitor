@@ -9,7 +9,6 @@ from src.app_core import MacroMonitor
 from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
 
-@st.cache_resource
 def get_monitor(project_root: str):
     return MacroMonitor(project_root)
 
