@@ -196,6 +196,67 @@ def _composite_metrics(project_root: str, category: str):
     )
 
 
+
+def _estimated_upcoming_releases(project_root: str, limit: int = 6) -> pd.DataFrame:
+    mon = get_monitor(project_root)
+    today = pd.Timestamp.now().normalize()
+    rows = []
+    for spec in mon.registry.all():
+        m = cached_metrics(project_root, spec["id"])
+        if m.empty or "level" not in m or not m["level"].notna().any():
+            continue
+        last_obs = pd.Timestamp(m["level"].dropna().index.max()).normalize()
+        freq = spec.get("frequency", "monthly")
+        if freq == "daily":
+            nxt = last_obs + pd.offsets.BDay(1)
+            while nxt <= today:
+                nxt += pd.offsets.BDay(1)
+        elif freq == "weekly":
+            nxt = last_obs + pd.Timedelta(days=7)
+            while nxt <= today:
+                nxt += pd.Timedelta(days=7)
+        elif freq == "quarterly":
+            nxt = last_obs + pd.DateOffset(months=3)
+            while nxt <= today:
+                nxt += pd.DateOffset(months=3)
+        else:
+            nxt = last_obs + pd.DateOffset(months=1)
+            while nxt <= today:
+                nxt += pd.DateOffset(months=1)
+        rows.append({
+            "Indicator": spec["short_name"],
+            "Type": spec["category"].title(),
+            "Expected": nxt,
+        })
+    if not rows:
+        return pd.DataFrame(columns=["Indicator","Type","Expected"])
+    return pd.DataFrame(rows).sort_values("Expected").head(limit)
+
+
+def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: float, cc: int):
+    st.markdown("### Upcoming releases")
+    releases = _estimated_upcoming_releases(project_root)
+    if releases.empty:
+        st.caption("No release estimates available.")
+    else:
+        for _, row in releases.iterrows():
+            st.markdown(
+                f"**{row['Expected'].strftime('%b %d')}**  ·  {row['Indicator']}  "
+                f"<span style='color:#C7D6D5'>({row['Type']})</span>",
+                unsafe_allow_html=True,
+            )
+        st.caption("Estimated next data updates based on each series' frequency, not official release timestamps.")
+
+    st.markdown("---")
+    st.markdown("### What to watch")
+    st.markdown(f"**Regime:** {regime}")
+    st.markdown(f"**Leading breadth:** {lb*100:.0f}%" if not pd.isna(lb) else "**Leading breadth:** N/A")
+    st.markdown(f"**Leading coverage:** {lc}/10")
+    st.markdown(f"**Coincident breadth:** {cb*100:.0f}%" if not pd.isna(cb) else "**Coincident breadth:** N/A")
+    st.markdown(f"**Coincident coverage:** {cc}/4")
+    st.caption("Use this rail for upcoming releases, coverage gaps, and the main signals that deserve attention.")
+
+
 def render_overview(project_root: str):
     setup_page("U.S. Business Cycle Monitor")
     st.title("U.S. Business Cycle Monitor")
@@ -213,77 +274,83 @@ def render_overview(project_root: str):
     from src.analytics.composites import classify_regime
     regime,growth,momentum=classify_regime(cs,ls,cchange)
 
-    a,b,c,d=st.columns(4)
-    a.metric("Macro regime", regime)
-    b.metric(
-        "Growth",
-        f"{fmt(growth)}σ",
-        help="Current economic activity. Computed as the latest Coincident Composite score: the equal-weight average of available direction-adjusted standardized signals from payrolls, industrial production, real income ex transfers, and real manufacturing & trade sales. Positive values indicate activity running stronger than its recent historical norm; negative values indicate weaker activity."
-    )
-    c.metric(
-        "Momentum",
-        f"{fmt(momentum)}σ",
-        help="Forward-looking direction of the business cycle. Computed as 70% × the latest Leading Composite + 30% × the 3-month change in the Coincident Composite. Positive momentum suggests conditions are improving; negative momentum suggests deterioration."
-    )
-    d.metric("Latest common signal", max(lead.index.max() if not lead.empty else pd.Timestamp.min, coi.index.max() if not coi.empty else pd.Timestamp.min).strftime("%b %Y") if (not lead.empty or not coi.empty) else "N/A")
+    rail, main = st.columns([1.05, 4.0], gap="large")
 
-    a,b=st.columns(2)
-    with a:
-        st.subheader("Leading")
-        x,y,z=st.columns(3)
-        x.metric(
-            "Composite",
-            f"{fmt(ls)}σ",
-            signal_label(ls),
-            help="Leading Composite. Each available leading indicator is transformed into its configured economic signal, standardized with a rolling 120-month Z-score using at least 36 observations, adjusted so positive generally means stronger conditions, and clipped to ±3σ. The composite is the equal-weight mean of those available signals and requires at least 7 leading indicators."
+    with rail:
+        _overview_info_rail(project_root, regime, lb, lc, cb, cc)
+
+    with main:
+        a,b,c,d=st.columns(4)
+        a.metric("Macro regime", regime)
+        b.metric(
+            "Growth",
+            f"{fmt(growth)}σ",
+            help="Current economic activity. Computed as the latest Coincident Composite score: the equal-weight average of available direction-adjusted standardized signals from payrolls, industrial production, real income ex transfers, and real manufacturing & trade sales. Positive values indicate activity running stronger than its recent historical norm; negative values indicate weaker activity."
         )
-        y.metric(
-            "Positive breadth",
-            f"{lb*100:.0f}%" if not pd.isna(lb) else "N/A",
-            help="Share of available leading indicators with a standardized signal above +0.25σ at the latest valid composite date. Example: 75% means three quarters of the available leading indicators are showing meaningfully positive signals."
+        c.metric(
+            "Momentum",
+            f"{fmt(momentum)}σ",
+            help="Forward-looking direction of the business cycle. Computed as 70% × the latest Leading Composite + 30% × the 3-month change in the Coincident Composite. Positive momentum suggests conditions are improving; negative momentum suggests deterioration."
         )
-        z.metric(
-            "Coverage",
-            f"{lc}/10",
-            help="Number of leading indicators with a valid standardized signal at the same date used for the displayed composite. The leading composite requires at least 7 of the 10 configured indicators to be available."
-        )
-        st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True)
-        st.caption(
-            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
-            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
-            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
-            "Signal shows the indicator's current standardized economic reading after direction adjustment. "
-            "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
-            "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
-        )
-    with b:
-        st.subheader("Coincident")
-        x,y,z=st.columns(3)
-        x.metric(
-            "Composite",
-            f"{fmt(cs)}σ",
-            signal_label(cs),
-            help="Coincident Composite. Each available coincident indicator is transformed into its configured economic signal, standardized with a rolling 120-month Z-score using at least 36 observations, direction-adjusted, and clipped to ±3σ. The composite is the equal-weight mean of the available signals and requires at least 3 of the 4 coincident indicators."
-        )
-        y.metric(
-            "Positive breadth",
-            f"{cb*100:.0f}%" if not pd.isna(cb) else "N/A",
-            help="Share of available coincident indicators with a standardized signal above +0.25σ at the latest valid composite date. Higher breadth means strength is spread across more parts of current economic activity rather than being driven by only one series."
-        )
-        z.metric(
-            "Coverage",
-            f"{cc}/4",
-            help="Number of coincident indicators with a valid standardized signal at the same date used for the displayed composite. The coincident composite requires at least 3 of the 4 configured indicators to be available."
-        )
-        st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True)
-        st.caption(
-            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
-            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
-            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
-            "Signal shows the indicator's current standardized economic reading after direction adjustment. "
-            "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
-            "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
-        )
+        d.metric("Latest common signal", max(lead.index.max() if not lead.empty else pd.Timestamp.min, coi.index.max() if not coi.empty else pd.Timestamp.min).strftime("%b %Y") if (not lead.empty or not coi.empty) else "N/A")
+
+        a,b=st.columns(2)
+        with a:
+            st.subheader("Leading")
+            x,y,z=st.columns(3)
+            x.metric(
+                "Composite",
+                f"{fmt(ls)}σ",
+                signal_label(ls),
+                help="Leading Composite. Each available leading indicator is transformed into its configured economic signal, standardized with a rolling 120-month Z-score using at least 36 observations, adjusted so positive generally means stronger conditions, and clipped to ±3σ. The composite is the equal-weight mean of those available signals and requires at least 7 leading indicators."
+            )
+            y.metric(
+                "Positive breadth",
+                f"{lb*100:.0f}%" if not pd.isna(lb) else "N/A",
+                help="Share of available leading indicators with a standardized signal above +0.25σ at the latest valid composite date. Example: 75% means three quarters of the available leading indicators are showing meaningfully positive signals."
+            )
+            z.metric(
+                "Coverage",
+                f"{lc}/10",
+                help="Number of leading indicators with a valid standardized signal at the same date used for the displayed composite. The leading composite requires at least 7 of the 10 configured indicators to be available."
+            )
+            st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True)
+            st.caption(
+                "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+                "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+                "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+                "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+                "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+                "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+            )
+        with b:
+            st.subheader("Coincident")
+            x,y,z=st.columns(3)
+            x.metric(
+                "Composite",
+                f"{fmt(cs)}σ",
+                signal_label(cs),
+                help="Coincident Composite. Each available coincident indicator is transformed into its configured economic signal, standardized with a rolling 120-month Z-score using at least 36 observations, direction-adjusted, and clipped to ±3σ. The composite is the equal-weight mean of the available signals and requires at least 3 of the 4 coincident indicators."
+            )
+            y.metric(
+                "Positive breadth",
+                f"{cb*100:.0f}%" if not pd.isna(cb) else "N/A",
+                help="Share of available coincident indicators with a standardized signal above +0.25σ at the latest valid composite date. Higher breadth means strength is spread across more parts of current economic activity rather than being driven by only one series."
+            )
+            z.metric(
+                "Coverage",
+                f"{cc}/4",
+                help="Number of coincident indicators with a valid standardized signal at the same date used for the displayed composite. The coincident composite requires at least 3 of the 4 configured indicators to be available."
+            )
+            st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True)
+            st.caption(
+                "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+                "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+                "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+                "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+                "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+                "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+            )
 
     st.subheader("Composite history")
     recession=_recession(project_root)
