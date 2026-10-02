@@ -109,6 +109,17 @@ def setup_page(title: str):
     [data-testid="stDataFrame"], [data-testid="stTable"] {
         border-color: rgba(199,214,213,0.18) !important;
     }
+    .overview-panel {
+        background: rgba(109,114,117,0.12);
+        border: 1px solid rgba(199,214,213,0.16);
+        border-radius: .75rem;
+        padding: 1rem 1.1rem 1.15rem 1.1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+    .overview-panel-accent {
+        border-left: 4px solid var(--brick-ember);
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -233,7 +244,17 @@ def _estimated_upcoming_releases(project_root: str, limit: int = 6) -> pd.DataFr
     return pd.DataFrame(rows).sort_values("Expected").head(limit)
 
 
+def _panel_start(accent: bool = False):
+    klass = "overview-panel overview-panel-accent" if accent else "overview-panel"
+    st.markdown(f'<div class="{klass}">', unsafe_allow_html=True)
+
+
+def _panel_end():
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
 def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: float, cc: int):
+    _panel_start(accent=True)
     st.markdown("### Upcoming releases")
     releases = _estimated_upcoming_releases(project_root)
     if releases.empty:
@@ -246,8 +267,9 @@ def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: 
                 unsafe_allow_html=True,
             )
         st.caption("Estimated next data updates based on each series' frequency, not official release timestamps.")
+    _panel_end()
 
-    st.markdown("---")
+    _panel_start()
     st.markdown("### What to watch")
     st.markdown(f"**Regime:** {regime}")
     st.markdown(f"**Leading breadth:** {lb*100:.0f}%" if not pd.isna(lb) else "**Leading breadth:** N/A")
@@ -255,6 +277,7 @@ def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: 
     st.markdown(f"**Coincident breadth:** {cb*100:.0f}%" if not pd.isna(cb) else "**Coincident breadth:** N/A")
     st.markdown(f"**Coincident coverage:** {cc}/4")
     st.caption("Use this rail for upcoming releases, coverage gaps, and the main signals that deserve attention.")
+    _panel_end()
 
 
 def render_overview(project_root: str):
@@ -280,6 +303,7 @@ def render_overview(project_root: str):
         _overview_info_rail(project_root, regime, lb, lc, cb, cc)
 
     with main:
+        _panel_start(accent=True)
         a,b,c,d=st.columns(4)
         a.metric("Macro regime", regime)
         b.metric(
@@ -293,9 +317,11 @@ def render_overview(project_root: str):
             help="Forward-looking direction of the business cycle. Computed as 70% × the latest Leading Composite + 30% × the 3-month change in the Coincident Composite. Positive momentum suggests conditions are improving; negative momentum suggests deterioration."
         )
         d.metric("Latest common signal", max(lead.index.max() if not lead.empty else pd.Timestamp.min, coi.index.max() if not coi.empty else pd.Timestamp.min).strftime("%b %Y") if (not lead.empty or not coi.empty) else "N/A")
+        _panel_end()
 
         a,b=st.columns(2)
         with a:
+            _panel_start()
             st.subheader("Leading")
             x,y,z=st.columns(3)
             x.metric(
@@ -323,7 +349,9 @@ def render_overview(project_root: str):
                 "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
                 "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
             )
+            _panel_end()
         with b:
+            _panel_start()
             st.subheader("Coincident")
             x,y,z=st.columns(3)
             x.metric(
@@ -351,7 +379,9 @@ def render_overview(project_root: str):
                 "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
                 "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
             )
+            _panel_end()
 
+    _panel_start()
     st.subheader("Composite history")
     recession=_recession(project_root)
     fig=go.Figure()
@@ -373,10 +403,13 @@ def render_overview(project_root: str):
     if xmax_candidates:
         fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
     st.plotly_chart(fig,use_container_width=True)
+    _panel_end()
 
+    _panel_start()
     st.subheader("Lagging conditions")
     lag=_category_table(project_root,"lagging")
     st.dataframe(lag[["Indicator","Level","YoY %","Momentum","Data"]], use_container_width=True, hide_index=True)
+    _panel_end()
 
 
 def render_category(project_root: str, category: str):
