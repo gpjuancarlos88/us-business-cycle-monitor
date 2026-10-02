@@ -51,8 +51,11 @@ def setup_page(title: str):
     .st-key-top_nav {
         position: fixed;
         top: 3.75rem;
-        left: 1.5rem;
-        right: 1.5rem;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        box-sizing: border-box;
+        max-width: calc(100vw - 2rem);
         z-index: 9999;
         background: rgba(15, 23, 42, 0.97);
         border: 1px solid rgba(255,255,255,0.10);
