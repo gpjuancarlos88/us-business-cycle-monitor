@@ -664,6 +664,14 @@ def render_overview(project_root: str):
     if xmax_candidates:
         fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
     st.plotly_chart(fig,use_container_width=True, config={"displayModeBar": False})
+    st.caption(
+        "How to read this chart: the Leading Composite summarizes forward-looking indicators and is intended to turn before the broader economy, "
+        "while the Coincident Composite summarizes indicators that move more closely with current economic activity. Values are standardized scores: "
+        "readings above 0 indicate conditions stronger than their recent historical norm and readings below 0 indicate weaker conditions. "
+        "The dashed zero line is the neutral reference point. Grey recession bands show NBER-dated recessions. "
+        "The most useful information is often in the direction and divergence of the two lines—for example, a falling Leading Composite while the "
+        "Coincident Composite remains positive can signal that current growth is still intact but forward momentum is deteriorating."
+    )
     _panel_end()
 
     _panel_start()
