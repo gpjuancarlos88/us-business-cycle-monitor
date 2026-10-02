@@ -126,3 +126,11 @@ Sources are the [BLS iCalendar feed](https://www.bls.gov/schedule/news_release/b
 The first implementation covers Employment Situation, CPI, Productivity and Costs, Personal Income and Outlays, factory orders, durable goods, housing permits, and business inventories. Unmapped indicators have no calendar entry. In particular, Census's nominal inventories/sales release is mapped to ISRATIO, not the separately published real CMRMTSPL series. No reporting-frequency estimates are substituted for official dates.
 
 Feeds are loaded concurrently, cached in Streamlit for one hour and locally in `data/releases/` for six hours. Failed refreshes retain the last saved schedule with an explicit status and its original fetch timestamp. These cached dates can change and should be checked against the source. Local calendar caches are excluded from Git. Install the updated requirements after pulling changes.
+
+## Economic themes and analyst readings
+
+Overview groups the 21 indicators into six economic channels, each with a guiding question, dated observations, a five-year standardized signal chart and a visible primary-indicator reading. Expand **Interpretation & transmission** for the remaining indicator readings, economic mechanisms and scope qualifications. **Cycle anatomy** connects the demand pipeline, current activity, labor/income and financial feedback. The original cycle heatmaps, composite history and lagging table remain below.
+
+Themes are configured in `config/economic_sections.yaml`; they introduce no additional composites or data sources. Missing indicators remain explicit. Charts show each indicator's own configured standardized transformation rather than raw rates, and contextual indicators are not assigned directional good/bad interpretations.
+
+Indicator Research also includes a deterministic **Analyst reading**. It distinguishes actual growth from historical position and compares the transformed input with exactly three months earlier when available. This differs from the dashboard's standardized momentum statistic, whose sign alone cannot establish that the underlying measure is rising or falling.

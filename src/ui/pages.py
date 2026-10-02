@@ -10,6 +10,7 @@ from src.app_core import MacroMonitor
 from src.data_sources.releases import ReleaseCalendar, upcoming_releases
 from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
+from src.ui.research import render_economic_overview, render_reading
 
 def get_monitor(project_root: str):
     return MacroMonitor(project_root)
@@ -321,6 +322,30 @@ def setup_page(title: str):
     }
     .watch-line span:first-child {color:#C7D6D5;}
     .watch-line strong {color:#ECEBF3;}
+
+    .research-intro {padding: 1.8rem 0 1.1rem; border-top: 1px solid rgba(199,214,213,.14);}
+    .research-eyebrow {color:#C7D6D5; font-size:.68rem; letter-spacing:.16em; margin-bottom:.7rem;}
+    .research-intro h2 {font-size:clamp(1.5rem,2.2vw,2.3rem) !important; margin:0 0 .55rem !important;}
+    .research-intro p {color:#C7D6D5 !important; opacity:.8; font-size:.93rem;}
+    [class*="st-key-theme_"] {padding:1.35rem 0 1.1rem; border-top:1px solid rgba(199,214,213,.16); border-radius:0;}
+    .theme-heading {display:flex; align-items:baseline; gap:.9rem; margin-bottom:.3rem;}
+    .theme-number {font-size:.72rem; color:#6D7275; letter-spacing:.08em;}
+    .theme-heading h4 {font-size:1.25rem !important; font-weight:600; padding:0 !important; margin:0 !important;}
+    .theme-question {color:#C7D6D5; font-size:.84rem; margin-bottom:1rem; opacity:.8;}
+    .theme-evidence {min-height:9.6rem;}
+    .theme-observation {display:grid; grid-template-columns:minmax(0,1fr) 4.6rem 4.5rem; gap:.55rem; align-items:baseline; border-bottom:1px solid rgba(199,214,213,.07); padding:.38rem 0; font-size:.8rem;}
+    .theme-observation strong {text-align:right; font-variant-numeric:tabular-nums; color:#ECEBF3; font-weight:550;}
+    .theme-brief {padding:.75rem 0 .65rem; min-height:8.2rem;}
+    .theme-brief > span {font-size:.66rem; color:#C7D6D5; letter-spacing:.08em; text-transform:uppercase;}
+    .theme-brief p {font-size:.83rem !important; line-height:1.6; margin:.4rem 0 0; color:#C7D6D5 !important;}
+    .theme-date {text-align:right; color:#C7D6D5; opacity:.55; font-size:.66rem; text-transform:uppercase;}
+    [class*="st-key-theme_"] [data-testid="stExpander"] {border:1px solid rgba(199,214,213,.12); border-radius:0;}
+    [class*="st-key-theme_"] [data-testid="stPlotlyChart"] {margin-top:.5rem;}
+    @media (max-width:800px) {
+        .theme-evidence {min-height:0;}
+        .theme-observation {font-size:.74rem;}
+        .st-key-overview_left_rail {position:static; padding-right:.7rem;}
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -552,6 +577,11 @@ def render_overview(project_root: str):
                 unsafe_allow_html=True,
             )
 
+            render_economic_overview(project_root, mon.registry.all(), cached_metrics)
+            st.markdown("<div class='research-intro'><div class='research-eyebrow'>CYCLE EVIDENCE</div>"
+                        "<h2>Timing, breadth and confirmation.</h2>"
+                        "<p>The leading and coincident lenses behind the macro regime.</p></div>", unsafe_allow_html=True)
+
             a,b=st.columns(2)
             with a:
                 _panel_start()
@@ -721,8 +751,11 @@ def render_indicator(project_root: str):
     a,b,c,d=st.columns(4)
     a.metric("Latest level",fmt(row.get("level")))
     b.metric("YoY",f"{fmt(row.get('yoy_pct'))}%")
-    c.metric("Signal",f"{fmt(row.get('signal'))}σ",signal_label(row.get("signal")))
+    c.metric("Signal",f"{fmt(row.get('signal'))}σ","Contextual" if spec.get("direction") == 0 else signal_label(row.get("signal")))
     d.metric("Momentum",f"{fmt(row.get('momentum'))}σ")
+    with st.container(key="indicator_analyst_reading"):
+        st.subheader("Analyst reading")
+        render_reading(spec, m)
     metric=st.radio("View",["level","yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"],horizontal=True)
     scale=st.radio("Y-axis scale",["Robust","Full"],horizontal=True,help="Robust zooms to the normal historical range without changing the underlying data. Full shows every extreme observation.")
     yrs=st.select_slider("History",options=[3,5,10,20,40],value=10)

@@ -252,3 +252,17 @@ Brick Ember should remain scarce and meaningful rather than decorative.
 - New dependencies: `icalendar`, `beautifulsoup4`, `tzdata` (important for Windows timezone support).
 - Regression tests cover daylight saving, calendar revisions/cancellations, shared reports, all-day events, Census periods, blocked feed responses, offline fallback and forced refresh.
 - Next priority: extend calendar coverage and add freshness indicators; vintage-aware storage is still future work.
+
+## Economic research Overview — 2026-10-02
+- User priority: deepen economic understanding and create an exceptional personal terminal; V1 freshness/vintage refinements are deferred.
+- Overview now opens with six economic themes before the existing cycle heatmaps: Growth & activity, Labor market, Household demand, Investment & inventories, Inflation & cost pressure, Financial conditions.
+- `config/economic_sections.yaml` groups all 21 configured indicators, with each theme's question, transmission mechanism and scope qualifications.
+- `src/ui/research.py` renders restrained two-column sections, observation-month labels, five-year standardized histories, visible primary-indicator readings and expandable evidence for every indicator.
+- Cycle anatomy explains the pipeline and financial feedback in an expandable section. Existing composites, charts, centered header and refresh button are retained.
+- `src/analytics/interpretations.py` generates deterministic readings: actual growth/return where applicable, historical position, actual three-month transformed change and indicator-specific qualifications.
+- Interpretations use the raw transformed change for direction, not the standardized momentum score. An above-average change can still be negative.
+- Inverted indicators describe underlying historical position correctly; contextual indicators are not assigned good/bad interpretations.
+- Indicator Research includes an Analyst reading; contextual metric labels now say Contextual.
+- No theme composites, GDP estimates, forecasts, new data sources or model-generated economic claims are introduced.
+- Verification: 21 tests pass; Streamlit component smoke checks cover the complete Overview and contextual indicator selection. Browser screenshot verification was blocked by the local-preview environment.
+- Next design/content iteration: review the six-theme layout with the user's actual data, refine comparative readings across related indicators, and consider direct consumption/GDP/inflation measures if the user wants to broaden the universe.
