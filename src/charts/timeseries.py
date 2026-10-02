@@ -1,6 +1,7 @@
 from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
+from src.charts.palette import indicator_color
 
 DEFAULT_CHART_START = pd.Timestamp("1960-01-01")
 
@@ -27,12 +28,12 @@ def add_recession_shading(fig: go.Figure, recession: pd.Series | None):
     return fig
 
 
-def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False, start_at_data: bool=False, robust_y: bool=False):
+def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False, start_at_data: bool=False, robust_y: bool=False, indicator_id: str | None=None):
     series = series.dropna().sort_index()
     if not start_at_data:
         series = _from_default_start(series)
     fig=go.Figure()
-    fig.add_trace(go.Scatter(x=series.index,y=series.values,mode="lines",name=title))
+    fig.add_trace(go.Scatter(x=series.index,y=series.values,mode="lines",name=title,line=dict(color=indicator_color(indicator_id))))
     if zero_line: fig.add_hline(y=0,line_dash="dash",opacity=0.5)
     add_recession_shading(fig,recession)
     fig.update_layout(

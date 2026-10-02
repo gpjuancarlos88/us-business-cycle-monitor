@@ -10,7 +10,8 @@ from src.app_core import MacroMonitor
 from src.data_sources.releases import ReleaseCalendar, upcoming_releases
 from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
-from src.ui.research import render_economic_overview, render_reading, render_cross_indicator_research
+from src.ui.research import render_economic_overview, render_reading, render_cross_indicator_research, render_economic_tensions, chapter_header, concise_text
+from src.charts.palette import indicator_color
 
 def get_monitor(project_root: str):
     return MacroMonitor(project_root)
@@ -323,7 +324,13 @@ def setup_page(title: str):
     .watch-line span:first-child {color:#C7D6D5;}
     .watch-line strong {color:#ECEBF3;}
 
-    .research-intro {padding: 1.8rem 0 1.1rem; border-top: 1px solid rgba(199,214,213,.14);}
+    .research-intro {margin-top:2.8rem; padding:1.75rem 1rem 1.2rem; border-top:1px solid rgba(199,214,213,.28); border-bottom:1px solid rgba(199,214,213,.09); background:linear-gradient(90deg,rgba(109,114,117,.09),rgba(12,18,12,0)); margin-bottom:1rem;}
+    .chapter-number {font-variant-numeric:tabular-nums; color:#ECEBF3; margin-right:.2rem;}
+    .series-marker {display:inline-block; width:.38rem; height:.38rem; border-radius:50%; margin-right:.45rem; vertical-align:middle;}
+    .st-key-economic_tensions {padding:1.2rem 0 1.4rem;}
+    .tension-heading {font-size:1.3rem; color:#ECEBF3; font-weight:550; margin-bottom:.45rem;}
+    .st-key-economic_tensions [data-testid="stExpander"] {border-radius:0; border-color:rgba(199,214,213,.12);}
+    .st-key-indicator_analyst_reading {border-top:1px solid rgba(199,214,213,.18); padding:1rem 0;}
     .research-eyebrow {color:#C7D6D5; font-size:.68rem; letter-spacing:.16em; margin-bottom:.7rem;}
     .research-intro h2 {font-size:clamp(1.5rem,2.2vw,2.3rem) !important; margin:0 0 .55rem !important;}
     .research-intro p {color:#C7D6D5 !important; opacity:.8; font-size:.93rem;}
@@ -335,7 +342,7 @@ def setup_page(title: str):
     .theme-evidence {min-height:9.6rem;}
     .theme-observation {display:grid; grid-template-columns:minmax(0,1fr) 4.6rem 4.5rem; gap:.55rem; align-items:baseline; border-bottom:1px solid rgba(199,214,213,.07); padding:.38rem 0; font-size:.8rem;}
     .theme-observation strong {text-align:right; font-variant-numeric:tabular-nums; color:#ECEBF3; font-weight:550;}
-    .theme-brief {padding:.75rem 0 .65rem; min-height:8.2rem;}
+    .theme-brief {padding:.75rem 0 .65rem; min-height:5.8rem;}
     .theme-brief > span {font-size:.66rem; color:#C7D6D5; letter-spacing:.08em; text-transform:uppercase;}
     .theme-brief p {font-size:.83rem !important; line-height:1.6; margin:.4rem 0 0; color:#C7D6D5 !important;}
     .theme-date {text-align:right; color:#C7D6D5; opacity:.55; font-size:.66rem; text-transform:uppercase;}
@@ -351,6 +358,7 @@ def setup_page(title: str):
     .st-key-comparison_workspace [data-testid="stExpander"] {border-radius:0; border-color:rgba(199,214,213,.12);}
     @media (max-width:800px) {
         .theme-evidence {min-height:0;}
+        .research-intro {margin-top:1.5rem; padding:1.35rem .75rem 1rem;}
         .theme-observation {font-size:.74rem;}
         .st-key-overview_left_rail {position:static; padding-right:.7rem;}
     }
@@ -587,9 +595,8 @@ def render_overview(project_root: str):
 
             render_economic_overview(project_root, mon.registry.all(), cached_metrics)
             render_cross_indicator_research(project_root, mon.registry.all(), cached_metrics)
-            st.markdown("<div class='research-intro'><div class='research-eyebrow'>CYCLE EVIDENCE</div>"
-                        "<h2>Timing, breadth and confirmation.</h2>"
-                        "<p>The leading and coincident lenses behind the macro regime.</p></div>", unsafe_allow_html=True)
+            render_economic_tensions(project_root, cached_metrics, cached_composite)
+            chapter_header(4, "CYCLE EVIDENCE", "Timing, breadth and confirmation.", "The leading and coincident lenses behind the macro regime.")
 
             a,b=st.columns(2)
             with a:
@@ -613,14 +620,16 @@ def render_overview(project_root: str):
                     help="Number of leading indicators with a valid standardized signal at the same date used for the displayed composite. The leading composite requires at least 7 of the 10 configured indicators to be available."
                 )
                 st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True, config={"displayModeBar": False})
-                st.caption(
-                    "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
-                    "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
-                    "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
-                    "Signal shows the indicator's current standardized economic reading after direction adjustment. "
-                    "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
-                    "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
-                )
+                st.caption("Signal = historical position · Momentum = standardized recent change · hover for values")
+                with st.expander("How to read the heatmap", expanded=False):
+                    st.caption(
+                        "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+                        "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+                        "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+                        "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+                        "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+                        "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+                    )
                 _panel_end()
             with b:
                 _panel_start()
@@ -643,22 +652,24 @@ def render_overview(project_root: str):
                     help="Number of coincident indicators with a valid standardized signal at the same date used for the displayed composite. The coincident composite requires at least 3 of the 4 configured indicators to be available."
                 )
                 st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True, config={"displayModeBar": False})
-                st.caption(
-                    "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
-                    "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
-                    "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
-                    "Signal shows the indicator's current standardized economic reading after direction adjustment. "
-                    "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
-                    "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
-                )
+                st.caption("Signal = historical position · Momentum = standardized recent change · hover for values")
+                with st.expander("How to read the heatmap", expanded=False):
+                    st.caption(
+                        "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+                        "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+                        "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+                        "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+                        "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+                        "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+                    )
                 _panel_end()
 
     _panel_start()
-    st.subheader("Composite history")
+    chapter_header(5, "COMPOSITE HISTORY", "The cycle through time.", "Leading and coincident evidence against the recession record.")
     recession=_recession(project_root)
     fig=go.Figure()
-    if not lead.empty: fig.add_trace(go.Scatter(x=lead.index,y=lead["score"],name="Leading",mode="lines"))
-    if not coi.empty: fig.add_trace(go.Scatter(x=coi.index,y=coi["score"],name="Coincident",mode="lines"))
+    if not lead.empty: fig.add_trace(go.Scatter(x=lead.index,y=lead["score"],name="Leading",mode="lines",line=dict(color=indicator_color("leading_composite"))))
+    if not coi.empty: fig.add_trace(go.Scatter(x=coi.index,y=coi["score"],name="Coincident",mode="lines",line=dict(color=indicator_color("coincident_composite"))))
     if not recession.empty:
         active=recession[recession.index >= DEFAULT_CHART_START].fillna(0).astype(int); start=None
         for dt,val in active.items():
@@ -686,18 +697,20 @@ def render_overview(project_root: str):
     if xmax_candidates:
         fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
     st.plotly_chart(fig,use_container_width=True, config={"displayModeBar": False})
-    st.caption(
-        "How to read this chart: the Leading Composite summarizes forward-looking indicators and is intended to turn before the broader economy, "
-        "while the Coincident Composite summarizes indicators that move more closely with current economic activity. Values are standardized scores: "
-        "readings above 0 indicate conditions stronger than their recent historical norm and readings below 0 indicate weaker conditions. "
-        "The dashed zero line is the neutral reference point. Grey recession bands show NBER-dated recessions. "
-        "The most useful information is often in the direction and divergence of the two lines—for example, a falling Leading Composite while the "
-        "Coincident Composite remains positive can signal that current growth is still intact but forward momentum is deteriorating."
-    )
+    st.caption("Zero marks the historical-norm reference. Grey bands show NBER recessions. Watch direction and divergence.")
+    with st.expander("How to read composite history", expanded=False):
+        st.caption(
+            "How to read this chart: the Leading Composite summarizes forward-looking indicators and is intended to turn before the broader economy, "
+            "while the Coincident Composite summarizes indicators that move more closely with current economic activity. Values are standardized scores: "
+            "readings above 0 indicate conditions stronger than their recent historical norm and readings below 0 indicate weaker conditions. "
+            "The dashed zero line is the neutral reference point. Grey recession bands show NBER-dated recessions. "
+            "The most useful information is often in the direction and divergence of the two lines—for example, a falling Leading Composite while the "
+            "Coincident Composite remains positive can signal that current growth is still intact but forward momentum is deteriorating."
+        )
     _panel_end()
 
     _panel_start()
-    st.subheader("Lagging conditions")
+    chapter_header(6, "LAGGING CONDITIONS", "Confirmation and accumulated pressure.", "Labor duration, inventories, costs and credit after the cycle has moved.")
     lag=_category_table(project_root,"lagging")
     st.dataframe(lag[["Indicator","Level","YoY %","Momentum","Data"]], use_container_width=True, hide_index=True)
     _panel_end()
@@ -715,16 +728,18 @@ def render_category(project_root: str, category: str):
         target=10 if category=="leading" else 4
         c3.metric("Coverage",f"{coverage}/{target}")
         recession=_recession(project_root)
-        st.plotly_chart(line_chart(comp["score"].dropna(), f"{title} composite", recession, zero_line=True),use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(line_chart(comp["score"].dropna(), f"{title} composite", recession, zero_line=True, indicator_id=f"{category}_composite"),use_container_width=True, config={"displayModeBar": False})
         st.subheader("Current signal heatmap")
         st.plotly_chart(_heatmap(project_root,category),use_container_width=True, config={"displayModeBar": False})
-        st.caption(
-            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
-            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
-            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
-            "Signal is the current standardized reading after any economic direction adjustment. Momentum measures the recent change "
-            "in the underlying signal over roughly three months. For leading and coincident indicators, positive values generally mean stronger conditions."
-        )
+        st.caption("Signal = historical position · Momentum = standardized recent change · hover for values")
+        with st.expander("How to read the heatmap", expanded=False):
+            st.caption(
+                "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+                "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+                "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+                "Signal is the current standardized reading after any economic direction adjustment. Momentum measures the recent change "
+                "in the underlying signal over roughly three months. For leading and coincident indicators, positive values generally mean stronger conditions."
+            )
     table=_category_table(project_root,category)
     st.subheader("Indicator monitor")
     st.dataframe(table[["Indicator","Signal","YoY %","Momentum","Data"]],use_container_width=True,hide_index=True)
@@ -764,7 +779,7 @@ def render_indicator(project_root: str):
     d.metric("Momentum",f"{fmt(row.get('momentum'))}σ")
     with st.container(key="indicator_analyst_reading"):
         st.subheader("Analyst reading")
-        render_reading(spec, m)
+        render_reading(spec, m, compact=True)
     metric=st.radio("View",["level","yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"],horizontal=True)
     scale=st.radio("Y-axis scale",["Robust","Full"],horizontal=True,help="Robust zooms to the normal historical range without changing the underlying data. Full shows every extreme observation.")
     yrs=st.select_slider("History",options=[3,5,10,20,40],value=10)
@@ -778,6 +793,7 @@ def render_indicator(project_root: str):
         zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"},
         start_at_data=True,
         robust_y=scale=="Robust",
+        indicator_id=spec["id"],
     ),use_container_width=True, config={"displayModeBar": False})
     st.markdown(f"**Source:** `{spec.get('provider')}`  ·  **Frequency:** {spec.get('frequency')}  ·  **Component quality:** {'Exact/public' if spec.get('exact') else 'Proxy/constructed'}")
 

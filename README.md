@@ -140,3 +140,13 @@ Indicator Research also includes a deterministic **Analyst reading**. It disting
 Below the thematic Overview, **Cross-indicator research** provides four focused comparisons: hours/payrolls, claims/payrolls, equipment orders/industrial production, and real income/sentiment. The selected pair has aligned five-year charts, a shared-month reading and a dynamic interpretation. Switch **Chart lens** between standardized signals and the underlying configured economic measures; the latter use individual units and scales.
 
 Calculations use the latest month with finite signals and transformed inputs for both indicators. Newer individual readings are labelled separately. Agreement/divergence concerns historical position; recent strengthening/weakening uses the actual direction-adjusted transformed change from exactly three months earlier. Missing comparison months are not filled. Explanations update after data refresh, while the economic mechanism and qualifications remain fixed. Relationships are defined in `config/research_comparisons.yaml`.
+
+## Economic tensions
+
+The Overview now connects the Coincident Composite, services CPI YoY and NFCI at their latest shared valid month. It shows the three current readings and exact three-month changes, a dynamic joint interpretation, and conditional policy-transmission implications. Expand **Supporting evidence, mechanism & limits** for the evidence table, standardized history, definitions and qualifications.
+
+Services pressure is called persistent only when YoY inflation is positive and its standardized signal is above +0.25σ in each of three consecutive months. This compares services inflation with its own history, not with the Fed's inflation target. Financial tightening/easing uses the actual NFCI change, separate from its source-average level and the dashboard's inverted rolling signal. Missing three-month baselines withhold the directional tension case. These are educational mechanisms rather than policy forecasts.
+
+[Policy-transmission background](https://www.federalreserve.gov/aboutthefed/fedexplained/monetary-policy.htm) and [NFCI methodology](https://www.chicagofed.org/research/data/nfci/about) provide the primary-source background.
+
+The Overview's numbered chapters, shorter visible readings and expandable guides reduce default text density. Indicator colors are defined centrally in `src/charts/palette.py` and remain consistent across chart views; heatmap colors continue to encode values.

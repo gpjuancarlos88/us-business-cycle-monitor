@@ -278,3 +278,16 @@ Brick Ember should remain scarce and meaningful rather than decorative.
 - Economic mechanism and relationship-specific interpretation limits are expandable. Claims inversion and sector/nominal-versus-real differences are explicit.
 - No additional indicators, forecasts, theme composites or ingestion changes.
 - Verification: 33 tests pass; complete Overview component smoke checks cover all four relationships and the economic-measure switch. The previously documented browser screenshot limitation still applies.
+
+## Economic tensions and visual refinement — 2026-10-02
+- User requested an Economic Tensions section and visual refinement, rather than a broader indicator universe.
+- New section after Cross-indicator Research connects the Coincident Composite, services CPI YoY and NFCI at their latest shared valid month.
+- `src/analytics/tensions.py` separates levels, three-month changes and three-month services persistence. Services pressure is persistent only with positive YoY inflation and standardized signals above +0.25σ for three consecutive months; this is not a policy-target comparison.
+- Cases include weakening activity with elevated/persistent services inflation, weakening activity with disinflation, strengthening activity with elevated services pressure, strengthening activity with disinflation, mixed evidence and incomplete direction.
+- Financial tightening/easing uses the actual NFCI level change, independently of its historically tight/loose level and the dashboard's inverted rolling signal.
+- Visible summary and policy-transmission reading update after data refresh. Supporting evidence, standardized chart, exact definitions and qualifications are expandable. Explanations are conditional mechanisms rather than a Fed forecast.
+- Methodology sources: Federal Reserve's Fed Explained monetary-policy chapter and Chicago Fed NFCI methodology (linked in the section).
+- Central palette `src/charts/palette.py` gives stable colors across themes, comparisons, tensions, Indicator Research and composite charts. Colors identify series rather than good/bad outcomes; heatmap colors still encode signal values.
+- Overview now has six numbered chapter breaks with subtle background shifts and stronger separators. Default theme, comparison and analyst readings are shorter; full interpretations, qualifications and chart guides remain expandable.
+- No source, indicator-universe, signal-methodology or refresh-workflow changes.
+- Verification: 46 tests pass, including tension cases, exact shared months, missing baselines/persistence observations, NFCI level/direction distinctions and chart-color consistency. Overview smoke checks show 12 charts and 13 expanders; comparison controls pass. Screenshot verification remains unavailable in this environment.
