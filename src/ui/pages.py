@@ -26,7 +26,7 @@ def setup_page(title: str):
     st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
     <style>
-    .block-container {padding-top: .7rem; padding-bottom: 2rem; max-width: 1900px;}
+    .block-container {padding-top: 3.2rem; padding-bottom: 2rem; max-width: 1900px;}
     [data-testid="stSidebar"] {display: none;}
     [data-testid="collapsedControl"] {display: none;}
     [data-testid="stMetric"] {
@@ -35,11 +35,11 @@ def setup_page(title: str):
         padding: .8rem;
         border-radius: .55rem;
     }
-    [data-testid="stPageLink"] a {
+    [data-testid="stPageLink"] {margin-top: .15rem;}\n    [data-testid="stPageLink"] a {
         justify-content: center;
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: .45rem;
-        padding: .45rem .65rem;
+        padding: .55rem .65rem;
         background: rgba(255,255,255,0.025);
         text-decoration: none;
     }
