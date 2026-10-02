@@ -185,6 +185,14 @@ def render_overview(project_root: str):
             help="Number of leading indicators with a valid standardized signal at the same date used for the displayed composite. The leading composite requires at least 7 of the 10 configured indicators to be available."
         )
         st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True)
+        st.caption(
+            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+            "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+            "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+            "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+        )
     with b:
         st.subheader("Coincident")
         x,y,z=st.columns(3)
@@ -205,6 +213,14 @@ def render_overview(project_root: str):
             help="Number of coincident indicators with a valid standardized signal at the same date used for the displayed composite. The coincident composite requires at least 3 of the 4 configured indicators to be available."
         )
         st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True)
+        st.caption(
+            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+            "Signal shows the indicator's current standardized economic reading after direction adjustment. "
+            "Momentum shows whether that underlying signal has been improving or deteriorating over roughly the last three months. "
+            "For most leading and coincident indicators, greener/positive values are stronger and redder/negative values are weaker."
+        )
 
     st.subheader("Composite history")
     recession=_recession(project_root)
@@ -248,6 +264,13 @@ def render_category(project_root: str, category: str):
         st.plotly_chart(line_chart(comp["score"].dropna(), f"{title} composite", recession, zero_line=True),use_container_width=True)
         st.subheader("Current signal heatmap")
         st.plotly_chart(_heatmap(project_root,category),use_container_width=True)
+        st.caption(
+            "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
+            "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
+            "-0.25 to -1.0 suggests moderately negative conditions; below -1.0 is unusually weak. "
+            "Signal is the current standardized reading after any economic direction adjustment. Momentum measures the recent change "
+            "in the underlying signal over roughly three months. For leading and coincident indicators, positive values generally mean stronger conditions."
+        )
     table=_category_table(project_root,category)
     st.subheader("Indicator monitor")
     st.dataframe(table[["Indicator","Signal","YoY %","Momentum","Data"]],use_container_width=True,hide_index=True)
