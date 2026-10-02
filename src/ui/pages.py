@@ -169,6 +169,99 @@ def setup_page(title: str):
     .st-key-overview_main [data-testid="stPlotlyChart"] {
         margin-top: .35rem;
     }
+    .st-key-overview_left_rail {
+        position: sticky;
+        top: 10rem;
+        align-self: flex-start;
+    }
+    .st-key-overview_hero {
+        padding: 1.25rem 0 1.35rem 0;
+        border-top: 1px solid rgba(199,214,213,0.13);
+        border-bottom: 1px solid rgba(199,214,213,0.13);
+        margin-bottom: 1.4rem;
+    }
+    .st-key-overview_hero [data-testid="stMetric"] {
+        background: transparent !important;
+        border: none !important;
+        border-left: 1px solid rgba(199,214,213,0.12) !important;
+        padding: .35rem 1rem !important;
+    }
+    .st-key-overview_hero [data-testid="column"]:first-child [data-testid="stMetric"] {
+        border-left: none !important;
+        padding-left: 0 !important;
+    }
+    .st-key-overview_hero [data-testid="stMetricLabel"] {
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-size: .72rem !important;
+        color: #C7D6D5 !important;
+    }
+    .st-key-overview_hero [data-testid="stMetricValue"] {
+        font-size: 2.35rem !important;
+        line-height: 1.05 !important;
+    }
+    .signal-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem 1.35rem;
+        padding: .65rem 0 .95rem 0;
+        margin-bottom: .75rem;
+        border-bottom: 1px solid rgba(199,214,213,0.10);
+        color: #C7D6D5;
+        font-size: .78rem;
+        letter-spacing: .045em;
+        text-transform: uppercase;
+    }
+    .signal-strip strong {color: #ECEBF3; font-weight: 650;}
+    .terminal-kicker {
+        color: #C7D6D5;
+        opacity: .78;
+        font-size: .72rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-top: -.15rem;
+        margin-bottom: 1.15rem;
+    }
+    .release-list {margin-top: .35rem;}
+    .release-row {
+        display: grid;
+        grid-template-columns: 3.4rem 1fr;
+        gap: .8rem;
+        padding: .72rem 0;
+        border-bottom: 1px solid rgba(199,214,213,0.08);
+    }
+    .release-row:first-child {
+        border-top: 1px solid rgba(199,214,213,0.08);
+    }
+    .release-date {
+        color: #ECEBF3;
+        font-weight: 650;
+        font-size: .82rem;
+    }
+    .release-name {
+        color: #ECEBF3;
+        font-size: .84rem;
+        line-height: 1.25;
+    }
+    .release-type {
+        display: inline-block;
+        margin-top: .22rem;
+        color: #C7D6D5;
+        opacity: .72;
+        font-size: .66rem;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+    .watch-line {
+        display:flex;
+        justify-content:space-between;
+        gap:1rem;
+        padding:.42rem 0;
+        border-bottom:1px solid rgba(199,214,213,0.07);
+        font-size:.82rem;
+    }
+    .watch-line span:first-child {color:#C7D6D5;}
+    .watch-line strong {color:#ECEBF3;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -239,7 +332,16 @@ def _heatmap(project_root: str, category: str):
         z=z, x=metrics, y=heatmap_labels, text=text, texttemplate="%{text}",
         zmid=0, zmin=-2, zmax=2, colorscale="RdYlGn", colorbar=dict(title="σ")
     ))
-    fig.update_layout(template="plotly_dark", height=max(360, 46*len(table)), margin=dict(l=15,r=20,t=30,b=25))
+    fig.update_layout(
+        template="plotly_dark",
+        height=max(360, 46*len(table)),
+        margin=dict(l=12,r=16,t=22,b=22),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, Segoe UI, Helvetica Neue, Arial", color="#ECEBF3"),
+    )
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
     return fig
 
 
@@ -293,6 +395,16 @@ def _estimated_upcoming_releases(project_root: str, limit: int = 6) -> pd.DataFr
     return pd.DataFrame(rows).sort_values("Expected").head(limit)
 
 
+def _latest_data_date(project_root: str) -> pd.Timestamp | None:
+    latest = []
+    mon = get_monitor(project_root)
+    for spec in mon.registry.all():
+        m = cached_metrics(project_root, spec["id"])
+        if not m.empty and "level" in m and m["level"].notna().any():
+            latest.append(pd.Timestamp(m["level"].dropna().index.max()))
+    return max(latest) if latest else None
+
+
 def _panel_start(accent: bool = False):
     klass = "overview-panel overview-panel-accent" if accent else "overview-panel"
     st.markdown(f'<div class="{klass}">', unsafe_allow_html=True)
@@ -303,38 +415,53 @@ def _panel_end():
 
 
 def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: float, cc: int):
-    _panel_start(accent=True)
     st.markdown("### Upcoming releases")
     releases = _estimated_upcoming_releases(project_root)
     if releases.empty:
         st.caption("No release estimates available.")
     else:
+        rows = ['<div class="release-list">']
         for _, row in releases.iterrows():
-            st.markdown(
-                f"**{row['Expected'].strftime('%b %d')}**  ·  {row['Indicator']}  "
-                f"<span style='color:#C7D6D5'>({row['Type']})</span>",
-                unsafe_allow_html=True,
+            rows.append(
+                "<div class='release-row'>"
+                f"<div class='release-date'>{row['Expected'].strftime('%b %d').upper()}</div>"
+                "<div>"
+                f"<div class='release-name'>{row['Indicator']}</div>"
+                f"<div class='release-type'>{row['Type']}</div>"
+                "</div></div>"
             )
-        st.caption("Estimated next data updates based on each series' frequency, not official release timestamps.")
-    _panel_end()
+        rows.append("</div>")
+        st.markdown("".join(rows), unsafe_allow_html=True)
+        st.caption("Estimated from reporting frequency; exact official release timestamps will replace these later.")
 
-    _panel_start()
+    st.markdown("<div style='height:1.35rem'></div>", unsafe_allow_html=True)
     st.markdown("### What to watch")
-    st.markdown(f"**Regime:** {regime}")
-    st.markdown(f"**Leading breadth:** {lb*100:.0f}%" if not pd.isna(lb) else "**Leading breadth:** N/A")
-    st.markdown(f"**Leading coverage:** {lc}/10")
-    st.markdown(f"**Coincident breadth:** {cb*100:.0f}%" if not pd.isna(cb) else "**Coincident breadth:** N/A")
-    st.markdown(f"**Coincident coverage:** {cc}/4")
-    st.caption("Use this rail for upcoming releases, coverage gaps, and the main signals that deserve attention.")
-    _panel_end()
+    lead_breadth = f"{lb*100:.0f}%" if not pd.isna(lb) else "N/A"
+    coinc_breadth = f"{cb*100:.0f}%" if not pd.isna(cb) else "N/A"
+    st.markdown(
+        "<div class='watch-line'><span>Regime</span><strong>" + regime + "</strong></div>"
+        "<div class='watch-line'><span>Leading breadth</span><strong>" + lead_breadth + "</strong></div>"
+        f"<div class='watch-line'><span>Leading coverage</span><strong>{lc}/10</strong></div>"
+        "<div class='watch-line'><span>Coincident breadth</span><strong>" + coinc_breadth + "</strong></div>"
+        f"<div class='watch-line'><span>Coincident coverage</span><strong>{cc}/4</strong></div>",
+        unsafe_allow_html=True,
+    )
+    st.caption("Compact read of the signals and data gaps that deserve attention.")
+
 
 
 def render_overview(project_root: str):
     setup_page("U.S. Business Cycle Monitor")
-    st.markdown("<div style='height:.5rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:.35rem'></div>", unsafe_allow_html=True)
     st.title("U.S. Business Cycle Monitor")
     st.caption("A personal macro research terminal: leading, coincident and lagging business-cycle evidence.")
-    st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+    latest_data = _latest_data_date(project_root)
+    data_label = latest_data.strftime("%d %b %Y").upper() if latest_data is not None else "N/A"
+    refreshed_label = pd.Timestamp.now().strftime("%d %b %Y · %H:%M").upper()
+    st.markdown(
+        f"<div class='terminal-kicker'>DATA THROUGH {data_label} &nbsp;&nbsp;·&nbsp;&nbsp; SESSION REFRESH {refreshed_label}</div>",
+        unsafe_allow_html=True,
+    )
     mon=get_monitor(project_root)
     if st.button("Refresh all data", type="primary"):
         with st.spinner("Refreshing public and configured manual sources..."):
@@ -356,21 +483,33 @@ def render_overview(project_root: str):
 
     with main:
         with st.container(key="overview_main"):
-            _panel_start(accent=True)
-            a,b,c,d=st.columns(4)
-            a.metric("Macro regime", regime)
-            b.metric(
-                "Growth",
-                f"{fmt(growth)}σ",
-                help="Current economic activity. Computed as the latest Coincident Composite score: the equal-weight average of available direction-adjusted standardized signals from payrolls, industrial production, real income ex transfers, and real manufacturing & trade sales. Positive values indicate activity running stronger than its recent historical norm; negative values indicate weaker activity."
+            with st.container(key="overview_hero"):
+                a,b,c,d=st.columns(4)
+                a.metric("Macro regime", regime)
+                b.metric(
+                    "Growth",
+                    f"{fmt(growth)}σ",
+                    help="Current economic activity. Computed as the latest Coincident Composite score: the equal-weight average of available direction-adjusted standardized signals from payrolls, industrial production, real income ex transfers, and real manufacturing & trade sales. Positive values indicate activity running stronger than its recent historical norm; negative values indicate weaker activity."
+                )
+                c.metric(
+                    "Momentum",
+                    f"{fmt(momentum)}σ",
+                    help="Forward-looking direction of the business cycle. Computed as 70% × the latest Leading Composite + 30% × the 3-month change in the Coincident Composite. Positive momentum suggests conditions are improving; negative momentum suggests deterioration."
+                )
+                d.metric("Latest common signal", max(lead.index.max() if not lead.empty else pd.Timestamp.min, coi.index.max() if not coi.empty else pd.Timestamp.min).strftime("%b %Y") if (not lead.empty or not coi.empty) else "N/A")
+
+            lead_breadth_text = f"{lb*100:.0f}%" if not pd.isna(lb) else "N/A"
+            coinc_breadth_text = f"{cb*100:.0f}%" if not pd.isna(cb) else "N/A"
+            st.markdown(
+                "<div class='signal-strip'>"
+                f"<span>Leading <strong>{fmt(ls)}σ</strong></span>"
+                f"<span>Coincident <strong>{fmt(cs)}σ</strong></span>"
+                f"<span>Leading breadth <strong>{lead_breadth_text}</strong></span>"
+                f"<span>Coincident breadth <strong>{coinc_breadth_text}</strong></span>"
+                f"<span>Coverage <strong>{lc}/10 · {cc}/4</strong></span>"
+                "</div>",
+                unsafe_allow_html=True,
             )
-            c.metric(
-                "Momentum",
-                f"{fmt(momentum)}σ",
-                help="Forward-looking direction of the business cycle. Computed as 70% × the latest Leading Composite + 30% × the 3-month change in the Coincident Composite. Positive momentum suggests conditions are improving; negative momentum suggests deterioration."
-            )
-            d.metric("Latest common signal", max(lead.index.max() if not lead.empty else pd.Timestamp.min, coi.index.max() if not coi.empty else pd.Timestamp.min).strftime("%b %Y") if (not lead.empty or not coi.empty) else "N/A")
-            _panel_end()
 
             a,b=st.columns(2)
             with a:
@@ -393,7 +532,7 @@ def render_overview(project_root: str):
                     f"{lc}/10",
                     help="Number of leading indicators with a valid standardized signal at the same date used for the displayed composite. The leading composite requires at least 7 of the 10 configured indicators to be available."
                 )
-                st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True)
+                st.plotly_chart(_heatmap(project_root,"leading"), use_container_width=True, config={"displayModeBar": False})
                 st.caption(
                     "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
                     "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
@@ -423,7 +562,7 @@ def render_overview(project_root: str):
                     f"{cc}/4",
                     help="Number of coincident indicators with a valid standardized signal at the same date used for the displayed composite. The coincident composite requires at least 3 of the 4 configured indicators to be available."
                 )
-                st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True)
+                st.plotly_chart(_heatmap(project_root,"coincident"), use_container_width=True, config={"displayModeBar": False})
                 st.caption(
                     "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
                     "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
@@ -447,7 +586,18 @@ def render_overview(project_root: str):
             elif val==0 and start is not None:
                 fig.add_vrect(x0=start,x1=dt,opacity=.11,line_width=0); start=None
     fig.add_hline(y=0,line_dash="dash",opacity=.5)
-    fig.update_layout(template="plotly_dark",height=450,margin=dict(l=20,r=20,t=20,b=20),legend=dict(orientation="h"))
+    fig.update_layout(
+        template="plotly_dark",
+        height=450,
+        margin=dict(l=18,r=18,t=18,b=18),
+        legend=dict(orientation="h"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, Segoe UI, Helvetica Neue, Arial", color="#ECEBF3"),
+        hovermode="x unified",
+    )
+    fig.update_xaxes(showgrid=False, linecolor="rgba(199,214,213,0.16)", tickfont=dict(color="#C7D6D5"))
+    fig.update_yaxes(gridcolor="rgba(199,214,213,0.08)", zerolinecolor="rgba(199,214,213,0.16)", tickfont=dict(color="#C7D6D5"))
     xmax_candidates=[]
     if not lead.empty:
         xmax_candidates.append(lead.index.max())
@@ -455,7 +605,7 @@ def render_overview(project_root: str):
         xmax_candidates.append(coi.index.max())
     if xmax_candidates:
         fig.update_xaxes(range=[DEFAULT_CHART_START, max(xmax_candidates)])
-    st.plotly_chart(fig,use_container_width=True)
+    st.plotly_chart(fig,use_container_width=True, config={"displayModeBar": False})
     _panel_end()
 
     _panel_start()
@@ -477,9 +627,9 @@ def render_category(project_root: str, category: str):
         target=10 if category=="leading" else 4
         c3.metric("Coverage",f"{coverage}/{target}")
         recession=_recession(project_root)
-        st.plotly_chart(line_chart(comp["score"].dropna(), f"{title} composite", recession, zero_line=True),use_container_width=True)
+        st.plotly_chart(line_chart(comp["score"].dropna(), f"{title} composite", recession, zero_line=True),use_container_width=True, config={"displayModeBar": False})
         st.subheader("Current signal heatmap")
-        st.plotly_chart(_heatmap(project_root,category),use_container_width=True)
+        st.plotly_chart(_heatmap(project_root,category),use_container_width=True, config={"displayModeBar": False})
         st.caption(
             "Heatmap guide: values are standardized Z-scores. Around 0 means the indicator is near its recent historical norm; "
             "+0.25 to +1.0 suggests moderately positive conditions; above +1.0 is unusually strong; "
@@ -537,7 +687,7 @@ def render_indicator(project_root: str):
         zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"},
         start_at_data=True,
         robust_y=scale=="Robust",
-    ),use_container_width=True)
+    ),use_container_width=True, config={"displayModeBar": False})
     st.markdown(f"**Source:** `{spec.get('provider')}`  ·  **Frequency:** {spec.get('frequency')}  ·  **Component quality:** {'Exact/public' if spec.get('exact') else 'Proxy/constructed'}")
 
 
