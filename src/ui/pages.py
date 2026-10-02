@@ -48,7 +48,20 @@ def setup_page(title: str):
         padding: .8rem;
         border-radius: .55rem;
     }
-    [data-testid="stPageLink"] {margin-top: .15rem;}\n    [data-testid="stPageLink"] a {
+    .top-nav-shell {
+        position: sticky;
+        top: 2.4rem;
+        z-index: 999;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: .65rem;
+        padding: .55rem .75rem .45rem .75rem;
+        margin-bottom: .45rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.30);
+        backdrop-filter: blur(10px);
+    }
+    [data-testid="stPageLink"] {margin-top: .15rem;}
+    [data-testid="stPageLink"] a {
         justify-content: center;
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: .45rem;
@@ -64,6 +77,7 @@ def setup_page(title: str):
     </style>
     """, unsafe_allow_html=True)
 
+    st.markdown('<div class="top-nav-shell">', unsafe_allow_html=True)
     nav = st.columns(6)
     with nav[0]:
         st.page_link("app.py", label="Overview", icon=":material/dashboard:")
@@ -77,6 +91,7 @@ def setup_page(title: str):
         st.page_link("pages/05_Indicator.py", label="Indicator", icon=":material/query_stats:")
     with nav[5]:
         st.page_link("pages/06_Data_Health.py", label="Data", icon=":material/database:")
+    st.markdown('</div>', unsafe_allow_html=True)
     st.divider()
 
 
