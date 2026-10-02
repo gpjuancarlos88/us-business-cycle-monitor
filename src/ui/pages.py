@@ -25,6 +25,19 @@ def setup_page(title: str):
     st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
     <style>
+    html, body, [class*="css"], [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] * {
+        font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+    }
+    h1, h2, h3, h4, h5, h6, [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+        font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+        letter-spacing: -0.015em;
+    }
+    h1, h2, h3 {
+        font-weight: 650 !important;
+    }
+    [data-testid="stMetricValue"] {
+        font-weight: 600 !important;
+    }
     .block-container {padding-top: 3.2rem; padding-bottom: 2rem; max-width: 1900px;}
     [data-testid="stSidebar"] {display: none;}
     [data-testid="collapsedControl"] {display: none;}
