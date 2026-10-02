@@ -231,7 +231,10 @@ def render_indicator(project_root: str):
     spec=mon.registry.get(labels[name])
     m=cached_metrics(project_root,spec["id"])
     st.title(spec["name"])
-    st.caption(spec.get("description",""))
+    st.markdown("### What it is")
+    st.write(spec.get("description",""))
+    st.markdown("### Why it matters")
+    st.write(spec.get("why_it_matters",""))
     if spec.get("proxy_note"):
         st.warning(spec["proxy_note"])
     if m.empty:
