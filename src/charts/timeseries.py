@@ -27,13 +27,16 @@ def add_recession_shading(fig: go.Figure, recession: pd.Series | None):
     return fig
 
 
-def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False):
-    series = _from_default_start(series)
+def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False, start_at_data: bool=False):
+    series = series.dropna().sort_index()
+    if not start_at_data:
+        series = _from_default_start(series)
     fig=go.Figure()
     fig.add_trace(go.Scatter(x=series.index,y=series.values,mode="lines",name=title))
     if zero_line: fig.add_hline(y=0,line_dash="dash",opacity=0.5)
     add_recession_shading(fig,recession)
     fig.update_layout(title=title, template="plotly_dark", height=430, margin=dict(l=20,r=20,t=55,b=20), showlegend=False)
     if not series.empty:
-        fig.update_xaxes(range=[DEFAULT_CHART_START, series.index.max()])
+        xmin = series.index.min() if start_at_data else DEFAULT_CHART_START
+        fig.update_xaxes(range=[xmin, series.index.max()])
     return fig
