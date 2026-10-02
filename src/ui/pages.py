@@ -48,7 +48,7 @@ def setup_page(title: str):
         padding: .8rem;
         border-radius: .55rem;
     }
-    .top-nav-shell {
+    .st-key-top_nav {
         position: sticky;
         top: 2.4rem;
         z-index: 999;
@@ -77,21 +77,20 @@ def setup_page(title: str):
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="top-nav-shell">', unsafe_allow_html=True)
-    nav = st.columns(6)
-    with nav[0]:
-        st.page_link("app.py", label="Overview", icon=":material/dashboard:")
-    with nav[1]:
-        st.page_link("pages/02_Leading.py", label="Leading", icon=":material/trending_up:")
-    with nav[2]:
-        st.page_link("pages/03_Coincident.py", label="Coincident", icon=":material/timeline:")
-    with nav[3]:
-        st.page_link("pages/04_Lagging.py", label="Lagging", icon=":material/history:")
-    with nav[4]:
-        st.page_link("pages/05_Indicator.py", label="Indicator", icon=":material/query_stats:")
-    with nav[5]:
-        st.page_link("pages/06_Data_Health.py", label="Data", icon=":material/database:")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(key="top_nav"):
+        nav = st.columns(6)
+        with nav[0]:
+            st.page_link("app.py", label="Overview", icon=":material/dashboard:")
+        with nav[1]:
+            st.page_link("pages/02_Leading.py", label="Leading", icon=":material/trending_up:")
+        with nav[2]:
+            st.page_link("pages/03_Coincident.py", label="Coincident", icon=":material/timeline:")
+        with nav[3]:
+            st.page_link("pages/04_Lagging.py", label="Lagging", icon=":material/history:")
+        with nav[4]:
+            st.page_link("pages/05_Indicator.py", label="Indicator", icon=":material/query_stats:")
+        with nav[5]:
+            st.page_link("pages/06_Data_Health.py", label="Data", icon=":material/database:")
     st.divider()
 
 
