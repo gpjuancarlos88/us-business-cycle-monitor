@@ -25,7 +25,8 @@ def setup_page(title: str):
     st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
     <style>
-    html, body, [class*="css"], [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] * {
+    html, body, .stApp, .stMarkdown, .stText, .stCaption, .stButton, .stSelectbox, .stRadio, .stSlider,
+    [data-testid="stMetricLabel"], [data-testid="stMetricValue"], [data-testid="stDataFrame"] {
         font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
     }
     h1, h2, h3, h4, h5, h6, [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
