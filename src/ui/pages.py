@@ -25,9 +25,23 @@ def setup_page(title: str):
     st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
     <style>
+    :root {
+        --onyx: #0C120C;
+        --brick-ember: #C20114;
+        --dim-grey: #6D7275;
+        --ash-grey: #C7D6D5;
+        --ghost-white: #ECEBF3;
+    }
     html, body, .stApp, .stMarkdown, .stText, .stCaption, .stButton, .stSelectbox, .stRadio, .stSlider,
     [data-testid="stMetricLabel"], [data-testid="stMetricValue"], [data-testid="stDataFrame"] {
         font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+    }
+    .stApp, [data-testid="stAppViewContainer"] {
+        background: var(--onyx) !important;
+        color: var(--ghost-white) !important;
+    }
+    h1, h2, h3, h4, h5, h6, p, label, [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+        color: var(--ghost-white) !important;
     }
     h1, h2, h3, h4, h5, h6, [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
         font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
@@ -43,8 +57,8 @@ def setup_page(title: str):
     [data-testid="stSidebar"] {display: none;}
     [data-testid="collapsedControl"] {display: none;}
     [data-testid="stMetric"] {
-        background: rgba(255,255,255,0.035);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(109,114,117,0.18);
+        border: 1px solid rgba(199,214,213,0.20);
         padding: .8rem;
         border-radius: .55rem;
     }
@@ -57,11 +71,11 @@ def setup_page(title: str):
         box-sizing: border-box;
         max-width: calc(100vw - 2rem);
         z-index: 9999;
-        background: rgba(15, 23, 42, 0.97);
-        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(12,18,12,0.98);
+        border: 1px solid rgba(199,214,213,0.28);
         border-radius: .65rem;
         padding: .9rem 1rem .85rem 1rem;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.30);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.35);
         backdrop-filter: blur(10px);
     }
     .st-key-top_nav + div {
@@ -70,17 +84,31 @@ def setup_page(title: str):
     [data-testid="stPageLink"] {margin-top: 0; margin-bottom: 0;}
     [data-testid="stPageLink"] a {
         justify-content: center;
-        border: 1px solid rgba(255,255,255,0.10);
+        border: 1px solid rgba(199,214,213,0.22);
         border-radius: .45rem;
         padding: .7rem .8rem;
-        background: rgba(255,255,255,0.025);
+        background: rgba(109,114,117,0.22);
+        color: var(--ghost-white) !important;
         text-decoration: none;
     }
     [data-testid="stPageLink"] a:hover {
-        background: rgba(255,255,255,0.07);
-        border-color: rgba(255,255,255,0.18);
+        background: var(--brick-ember);
+        border-color: var(--brick-ember);
+        color: var(--ghost-white) !important;
     }
-    .small-muted {opacity: .68; font-size: .88rem;}
+    [data-testid="stPageLink"] a[aria-current="page"] {
+        background: var(--brick-ember);
+        border-color: var(--brick-ember);
+        color: var(--ghost-white) !important;
+    }
+    .stCaption, .small-muted {
+        color: var(--ash-grey) !important;
+        opacity: .78;
+        font-size: .88rem;
+    }
+    [data-testid="stDataFrame"], [data-testid="stTable"] {
+        border-color: rgba(199,214,213,0.18) !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
