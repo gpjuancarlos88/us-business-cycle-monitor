@@ -27,7 +27,7 @@ def add_recession_shading(fig: go.Figure, recession: pd.Series | None):
     return fig
 
 
-def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False, start_at_data: bool=False):
+def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None, zero_line: bool=False, start_at_data: bool=False, robust_y: bool=False):
     series = series.dropna().sort_index()
     if not start_at_data:
         series = _from_default_start(series)
@@ -39,4 +39,25 @@ def line_chart(series: pd.Series, title: str, recession: pd.Series | None = None
     if not series.empty:
         xmin = series.index.min() if start_at_data else DEFAULT_CHART_START
         fig.update_xaxes(range=[xmin, series.index.max()])
+        if robust_y and len(series) >= 8:
+            q1 = float(series.quantile(0.25))
+            q3 = float(series.quantile(0.75))
+            iqr = q3 - q1
+            if iqr > 0:
+                lower = q1 - 1.5 * iqr
+                upper = q3 + 1.5 * iqr
+                if zero_line:
+                    lower = min(lower, 0.0)
+                    upper = max(upper, 0.0)
+                pad = max((upper - lower) * 0.08, 1e-9)
+                y0, y1 = lower - pad, upper + pad
+                clipped = ((series < y0) | (series > y1)).any()
+                fig.update_yaxes(range=[y0, y1])
+                if clipped:
+                    fig.add_annotation(
+                        x=1, y=1, xref="paper", yref="paper",
+                        text="Robust scale — extreme observations outside visible range",
+                        showarrow=False, xanchor="right", yanchor="bottom",
+                        font=dict(size=11), opacity=0.65,
+                    )
     return fig
