@@ -250,7 +250,7 @@ def render_indicator(project_root: str):
     series=m[metric].dropna()
     cutoff=series.index.max()-pd.DateOffset(years=yrs) if not series.empty else None
     if cutoff is not None: series=series[series.index>=cutoff]
-    st.plotly_chart(line_chart(series,metric.replace("_"," ").title(),_recession(project_root),zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"}),use_container_width=True)
+    st.plotly_chart(line_chart(series,metric.replace("_"," ").title(),_recession(project_root),zero_line=metric in {"yoy_pct","growth_3m_ann","growth_6m_ann","signal","momentum"},start_at_data=True),use_container_width=True)
     st.markdown(f"**Source:** `{spec.get('provider')}`  ·  **Frequency:** {spec.get('frequency')}  ·  **Component quality:** {'Exact/public' if spec.get('exact') else 'Proxy/constructed'}")
 
 
