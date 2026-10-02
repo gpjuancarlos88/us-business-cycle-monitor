@@ -116,3 +116,13 @@ pytest -q
 3. Historical `as-of` slider using real-time vintages.
 4. Release calendar and economic surprises.
 5. Recession probability models and dynamic/PCA factors only after the descriptive system is validated.
+
+## Official release calendar
+
+Overview shows upcoming agency reports mapped to the monitor's indicators, grouping indicators released together. Data includes the full mapped schedule, reporting periods where available, source links, feed status, last-fetch timestamps, and a separate **Refresh release calendars** button.
+
+Sources are the [BLS iCalendar feed](https://www.bls.gov/schedule/news_release/bls.ics), [BEA iCalendar feed](https://www.bea.gov/news/schedule/icalendar), and [Census release schedule](https://www.census.gov/economic-indicators/calendar-listview.html). Times are displayed in U.S. Eastern time with daylight saving handled automatically. A release time is separate from the underlying observation date; availability through FRED may follow the agency publication.
+
+The first implementation covers Employment Situation, CPI, Productivity and Costs, Personal Income and Outlays, factory orders, durable goods, housing permits, and business inventories. Unmapped indicators have no calendar entry. In particular, Census's nominal inventories/sales release is mapped to ISRATIO, not the separately published real CMRMTSPL series. No reporting-frequency estimates are substituted for official dates.
+
+Feeds are loaded concurrently, cached in Streamlit for one hour and locally in `data/releases/` for six hours. Failed refreshes retain the last saved schedule with an explicit status and its original fetch timestamp. These cached dates can change and should be checked against the source. Local calendar caches are excluded from Git. Install the updated requirements after pulling changes.

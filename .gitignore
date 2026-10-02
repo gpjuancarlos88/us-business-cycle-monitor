@@ -6,3 +6,4 @@ __pycache__/
 data/database/*.db
 data/raw/**/*.csv
 !data/manual/ism_new_orders.csv
+data/releases/

@@ -6,3 +6,6 @@ requests>=2.32
 yfinance>=0.2.50
 PyYAML>=6.0
 pytest>=8.0
+icalendar>=6.1
+beautifulsoup4>=4.12
+tzdata>=2024.1

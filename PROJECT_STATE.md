@@ -135,7 +135,8 @@ A separate, subtle vertical section containing:
 - What to watch
 - sticky behavior intended while scrolling
 - release rows show date, indicator, category
-- release dates are currently estimated from reporting frequency, not yet official release calendars
+- release dates now come from official BLS, BEA and Census schedules for mapped indicators
+- report rows group all affected indicators and display U.S. Eastern release times
 
 ### Main section
 - Hero summary metrics:
@@ -174,9 +175,19 @@ These explain both economic meaning and exact dashboard calculation.
 - recession bands rendered behind lines
 
 ## Data / release roadmap
-Current release dates are estimated using indicator frequency.
-Planned upgrade:
-- replace estimates with exact official release calendars from BLS, BEA, Census, Federal Reserve, etc.
+Official release calendar implemented for BLS, BEA and Census:
+- modular source adapter: `src/data_sources/releases.py`
+- BLS / BEA iCalendar feeds and Census calendar table
+- 10 mapped indicators across 8 report families; shared reports are grouped
+- UTC storage and U.S. Eastern display, including daylight saving
+- calendar feed status, original fetch timestamps and manual refresh on Data
+- one-hour Streamlit cache and six-hour disk cache; failed refreshes retain a clearly labelled saved schedule
+- cache directory `data/releases/` is ignored by Git
+- no inferred dates for unmapped indicators; official report dates do not imply immediate FRED availability
+
+Remaining upgrades:
+- add Federal Reserve, DOL, Chicago Fed, Michigan and ISM release schedules
+- add publication calendar for real manufacturing/trade sales separately from nominal Census sales
 - eventually track observation date separately from release date
 - later add historical as-of/vintage mode
 
@@ -227,10 +238,17 @@ Avoid heavy rounded cards and excessive shadows. Prefer:
 Brick Ember should remain scarce and meaningful rather than decorative.
 
 ## Next high-value upgrades
-1. Official economic release calendar
+1. Extend official release-calendar coverage beyond BLS / BEA / Census
 2. Better semantic status colors for improving / neutral / deteriorating
 3. Auto-generated short analyst interpretation per indicator
 4. Historical as-of slider / vintage data
 5. More consistent institutional styling across Leading, Coincident, Lagging, Indicator, and Data pages
 6. Potential release surprise tracking: Actual vs Consensus vs Prior
 7. Data freshness/staleness indicators
+
+## Latest continuation — 2026-10-02
+- Implemented the first official release-calendar layer on `dev`.
+- Preserved the centered hero/refresh control, established palette, charts and signal calculations.
+- New dependencies: `icalendar`, `beautifulsoup4`, `tzdata` (important for Windows timezone support).
+- Regression tests cover daylight saving, calendar revisions/cancellations, shared reports, all-day events, Census periods, blocked feed responses, offline fallback and forced refresh.
+- Next priority: extend calendar coverage and add freshness indicators; vintage-aware storage is still future work.

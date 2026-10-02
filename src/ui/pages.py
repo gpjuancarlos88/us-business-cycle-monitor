@@ -1,11 +1,13 @@
 from __future__ import annotations
 from pathlib import Path
+from html import escape
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from src.app_core import MacroMonitor
+from src.data_sources.releases import ReleaseCalendar, upcoming_releases
 from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
 
@@ -298,6 +300,8 @@ def setup_page(title: str):
         font-size: .84rem;
         line-height: 1.25;
     }
+    .release-name a {color: #ECEBF3; text-decoration: none;}
+    .release-name a:hover {text-decoration: underline;}
     .release-type {
         display: inline-block;
         margin-top: .22rem;
@@ -414,40 +418,14 @@ def _composite_metrics(project_root: str, category: str):
 
 
 
-def _estimated_upcoming_releases(project_root: str, limit: int = 6) -> pd.DataFrame:
-    mon = get_monitor(project_root)
-    today = pd.Timestamp.now().normalize()
-    rows = []
-    for spec in mon.registry.all():
-        m = cached_metrics(project_root, spec["id"])
-        if m.empty or "level" not in m or not m["level"].notna().any():
-            continue
-        last_obs = pd.Timestamp(m["level"].dropna().index.max()).normalize()
-        freq = spec.get("frequency", "monthly")
-        if freq == "daily":
-            nxt = last_obs + pd.offsets.BDay(1)
-            while nxt <= today:
-                nxt += pd.offsets.BDay(1)
-        elif freq == "weekly":
-            nxt = last_obs + pd.Timedelta(days=7)
-            while nxt <= today:
-                nxt += pd.Timedelta(days=7)
-        elif freq == "quarterly":
-            nxt = last_obs + pd.DateOffset(months=3)
-            while nxt <= today:
-                nxt += pd.DateOffset(months=3)
-        else:
-            nxt = last_obs + pd.DateOffset(months=1)
-            while nxt <= today:
-                nxt += pd.DateOffset(months=1)
-        rows.append({
-            "Indicator": spec["short_name"],
-            "Type": spec["category"].title(),
-            "Expected": nxt,
-        })
-    if not rows:
-        return pd.DataFrame(columns=["Indicator","Type","Expected"])
-    return pd.DataFrame(rows).sort_values("Expected").head(limit)
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_release_calendar(project_root: str, _force=False):
+    return ReleaseCalendar(project_root).load(force=_force)
+
+
+def _upcoming_releases(project_root: str, limit=None):
+    events, status = cached_release_calendar(project_root)
+    return upcoming_releases(events, get_monitor(project_root).registry.all(), limit=limit), status
 
 
 def _latest_data_date(project_root: str) -> pd.Timestamp | None:
@@ -471,23 +449,28 @@ def _panel_end():
 
 def _overview_info_rail(project_root: str, regime: str, lb: float, lc: int, cb: float, cc: int):
     st.markdown("### Upcoming releases")
-    releases = _estimated_upcoming_releases(project_root)
+    releases, status = _upcoming_releases(project_root, limit=6)
     if releases.empty:
-        st.caption("No release estimates available.")
+        st.caption("No upcoming official dates available for the mapped indicators.")
     else:
         rows = ['<div class="release-list">']
         for _, row in releases.iterrows():
+            when = row["Release time (ET)"]
+            clock = when.strftime("%H:%M ET") if row["Time known"] else "Time not published"
             rows.append(
                 "<div class='release-row'>"
-                f"<div class='release-date'>{row['Expected'].strftime('%b %d').upper()}</div>"
+                f"<div class='release-date'>{when.strftime('%b %d').upper()}</div>"
                 "<div>"
-                f"<div class='release-name'>{row['Indicator']}</div>"
-                f"<div class='release-type'>{row['Type']}</div>"
+                f"<div class='release-name'><a href='{escape(row['Source'], quote=True)}' "
+                f"target='_blank' rel='noopener noreferrer'>{escape(row['Indicators'])}</a></div>"
+                f"<div class='release-type'>{escape(row['Agency'])} · {clock} · {escape(row['Categories'])}</div>"
                 "</div></div>"
             )
         rows.append("</div>")
         st.markdown("".join(rows), unsafe_allow_html=True)
-        st.caption("Estimated from reporting frequency; exact official release timestamps will replace these later.")
+    st.caption("Official schedules · U.S. Eastern time. Dates may change; FRED availability can follow the agency release.")
+    if status["Status"].isin(["Unavailable", "Cached · refresh failed"]).any():
+        st.caption("Some calendar feeds could not refresh. See Data for source status and cached timestamps.")
 
     st.markdown("<div style='height:1.35rem'></div>", unsafe_allow_html=True)
     st.markdown("### What to watch")
@@ -773,6 +756,25 @@ def render_data_health(project_root: str):
         age=(now-latest).days if pd.notna(latest) else None
         rows.append({"Indicator":spec["short_name"],"Category":spec["category"],"Provider":spec["provider"],"Latest observation":latest.date().isoformat() if pd.notna(latest) else "Missing","Age (days)":age,"Quality":"Exact" if spec.get("exact") else "Proxy","Status":"OK" if pd.notna(latest) else "Needs data"})
     st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
+    st.subheader("Official release calendar")
+    if st.button("Refresh release calendars"):
+        cached_release_calendar.clear()
+        cached_release_calendar(project_root, _force=True)
+    releases, calendar_status = _upcoming_releases(project_root)
+    st.caption("BLS, BEA and Census schedules. All release times use U.S. Eastern time, including daylight saving changes. These are publication dates, separate from observation dates and FRED ingestion.")
+    if releases.empty:
+        st.info("No upcoming official releases found for the mapped indicators.")
+    else:
+        display = releases.drop(columns=["Time known"]).copy()
+        display["Release time (ET)"] = [
+            when.strftime("%Y-%m-%d %H:%M %Z") if known else when.strftime("%Y-%m-%d") + " · time not published"
+            for when, known in zip(releases["Release time (ET)"], releases["Time known"])
+        ]
+        st.dataframe(display, use_container_width=True, hide_index=True,
+                     column_config={"Source": st.column_config.LinkColumn("Source")})
+    st.dataframe(calendar_status, use_container_width=True, hide_index=True,
+                 column_config={"Source": st.column_config.LinkColumn("Source")})
+    st.caption("Coverage currently includes Employment Situation, CPI, Productivity and Costs, Personal Income and Outlays, factory orders, durable goods, housing permits and business inventories. Other indicators remain unscheduled here; no frequency-based dates are presented as official releases.")
     st.subheader("Update log")
     st.dataframe(mon.repo.recent_logs(),use_container_width=True,hide_index=True)
     st.info("For ISM New Orders, place a CSV with columns date,value at data/manual/ism_new_orders.csv, then refresh. This keeps proprietary/licensed data explicit rather than scraping an unofficial source.")
