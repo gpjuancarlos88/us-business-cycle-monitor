@@ -1,0 +1,29 @@
+comparisons:
+  - id: hours_payrolls
+    title: Hours vs payrolls
+    indicators: [manufacturing_hours, payrolls]
+    question: Are hours and employment telling the same story?
+    mechanism: Firms can adjust hours and overtime before changing headcount. Manufacturing hours therefore offer a view of labor utilization, while total nonfarm payrolls provide broader coincident employment evidence.
+    divergence: Labor utilization and broad employment are giving different historical-position readings. Hours can change before headcount, but this comparison cannot establish that payrolls will follow.
+    qualification: Manufacturing hours are sector-specific; payrolls cover the broader nonfarm economy. A divergence can reflect sector composition rather than a turning point.
+  - id: claims_payrolls
+    title: Claims vs payrolls
+    indicators: [initial_claims, payrolls]
+    question: Does layoff pressure confirm the employment picture?
+    mechanism: Initial claims describe new unemployment-insurance filings; payrolls measure the stock of nonfarm jobs. A worsening claims signal can precede weaker payroll growth, while resilient payrolls can coexist with pockets of layoffs.
+    divergence: Layoff-related evidence and payroll growth are giving different historical-position readings. Investigate whether labor-market stress is emerging or whether hiring is offsetting layoffs.
+    qualification: Claims use a four-week average at month-end and a direction-adjusted YoY signal. An above-normal directional signal means claims growth is below its own norm; it does not guarantee claims are falling. Filings and employment cover different populations.
+  - id: orders_production
+    title: Orders vs production
+    indicators: [cap_goods_ex_air, industrial_production]
+    question: Does the investment pipeline confirm current output?
+    mechanism: Equipment orders reflect demand entering the investment pipeline. Industrial production captures realized output across manufacturing, mining and utilities. Comparing them links intentions with current activity.
+    divergence: The equipment-order pipeline and realized industrial output are giving different historical-position readings. This can identify a change in the pipeline, but sector mix and timing also matter.
+    qualification: Capital-goods orders are nominal and narrowly defined; industrial production is a broader real-output index. Orders can be revised or cancelled, and this is not an estimate of real capital expenditure.
+  - id: income_sentiment
+    title: Income vs sentiment
+    indicators: [real_income_ex_transfers, consumer_expectations]
+    question: Do purchasing power and confidence reinforce each other?
+    mechanism: Real income excluding transfers describes purchasing power from market-generated income. Michigan sentiment describes how households perceive their finances and the economy. Capacity to spend and willingness to spend can differ.
+    divergence: Income growth and sentiment are giving different historical-position readings. Household resources and perceptions can move apart; direct consumption data would help assess the effect on spending.
+    qualification: The sentiment input is headline Michigan sentiment, not a pure expectations measure. Income excludes transfers; neither series directly measures consumption or the distribution of household resources.

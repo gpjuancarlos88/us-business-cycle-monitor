@@ -10,7 +10,7 @@ from src.app_core import MacroMonitor
 from src.data_sources.releases import ReleaseCalendar, upcoming_releases
 from src.charts.timeseries import DEFAULT_CHART_START, line_chart
 from src.ui.helpers import fmt, signal_label
-from src.ui.research import render_economic_overview, render_reading
+from src.ui.research import render_economic_overview, render_reading, render_cross_indicator_research
 
 def get_monitor(project_root: str):
     return MacroMonitor(project_root)
@@ -341,6 +341,14 @@ def setup_page(title: str):
     .theme-date {text-align:right; color:#C7D6D5; opacity:.55; font-size:.66rem; text-transform:uppercase;}
     [class*="st-key-theme_"] [data-testid="stExpander"] {border:1px solid rgba(199,214,213,.12); border-radius:0;}
     [class*="st-key-theme_"] [data-testid="stPlotlyChart"] {margin-top:.5rem;}
+    .st-key-comparison_workspace {padding:1.25rem 0 1.75rem; border-top:1px solid rgba(199,214,213,.16);}
+    .comparison-question {font-size:1.2rem; font-weight:550; margin:.8rem 0 .35rem; color:#ECEBF3;}
+    .comparison-value {font-size:2rem; font-weight:550; letter-spacing:-.03em; line-height:1.2; color:#ECEBF3; font-variant-numeric:tabular-nums;}
+    .comparison-value > span {font-size:1rem; margin-left:.25rem; opacity:.65;}
+    .comparison-reading {border-left:2px solid #C7D6D5; padding:.9rem 1.1rem; margin:.75rem 0; background:rgba(109,114,117,.065);}
+    .comparison-reading .research-eyebrow {margin-bottom:.45rem; letter-spacing:.08em;}
+    .comparison-reading p {font-size:.92rem; line-height:1.65; margin:0;}
+    .st-key-comparison_workspace [data-testid="stExpander"] {border-radius:0; border-color:rgba(199,214,213,.12);}
     @media (max-width:800px) {
         .theme-evidence {min-height:0;}
         .theme-observation {font-size:.74rem;}
@@ -578,6 +586,7 @@ def render_overview(project_root: str):
             )
 
             render_economic_overview(project_root, mon.registry.all(), cached_metrics)
+            render_cross_indicator_research(project_root, mon.registry.all(), cached_metrics)
             st.markdown("<div class='research-intro'><div class='research-eyebrow'>CYCLE EVIDENCE</div>"
                         "<h2>Timing, breadth and confirmation.</h2>"
                         "<p>The leading and coincident lenses behind the macro regime.</p></div>", unsafe_allow_html=True)

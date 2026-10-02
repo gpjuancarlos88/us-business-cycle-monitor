@@ -240,7 +240,7 @@ Brick Ember should remain scarce and meaningful rather than decorative.
 ## Next high-value upgrades
 1. Extend official release-calendar coverage beyond BLS / BEA / Census
 2. Better semantic status colors for improving / neutral / deteriorating
-3. Auto-generated short analyst interpretation per indicator
+3. Refine theme and cross-indicator interpretations
 4. Historical as-of slider / vintage data
 5. More consistent institutional styling across Leading, Coincident, Lagging, Indicator, and Data pages
 6. Potential release surprise tracking: Actual vs Consensus vs Prior
@@ -266,3 +266,15 @@ Brick Ember should remain scarce and meaningful rather than decorative.
 - No theme composites, GDP estimates, forecasts, new data sources or model-generated economic claims are introduced.
 - Verification: 21 tests pass; Streamlit component smoke checks cover the complete Overview and contextual indicator selection. Browser screenshot verification was blocked by the local-preview environment.
 - Next design/content iteration: review the six-theme layout with the user's actual data, refine comparative readings across related indicators, and consider direct consumption/GDP/inflation measures if the user wants to broaden the universe.
+
+## Cross-indicator research — 2026-10-02
+- Added a focused research workspace after the six economic themes and before the original cycle evidence.
+- Four selectable relationships: Hours vs payrolls, Claims vs payrolls, Orders vs production, Income vs sentiment.
+- Configuration: `config/research_comparisons.yaml`; calculations: `src/analytics/comparisons.py`; rendering: `src/ui/research.py`.
+- Interpretations and numeric readings use the latest exact shared month with finite signals, levels and transformed inputs. A newer valid individual month is labelled separately; missing months are not imputed.
+- Agreement/divergence describes direction-adjusted historical position relative to ±0.25σ, separately from recent underlying direction over exactly three months.
+- Actual transformed changes determine strengthening/weakening; standardized momentum is not used for that decision.
+- Two aligned five-year charts support Standardized signal (shared ±3.2σ axes) or Economic measure (individual native units/scales). A vertical dashed line marks the shared reading month.
+- Economic mechanism and relationship-specific interpretation limits are expandable. Claims inversion and sector/nominal-versus-real differences are explicit.
+- No additional indicators, forecasts, theme composites or ingestion changes.
+- Verification: 33 tests pass; complete Overview component smoke checks cover all four relationships and the economic-measure switch. The previously documented browser screenshot limitation still applies.

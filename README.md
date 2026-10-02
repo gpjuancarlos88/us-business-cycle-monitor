@@ -134,3 +134,9 @@ Overview groups the 21 indicators into six economic channels, each with a guidin
 Themes are configured in `config/economic_sections.yaml`; they introduce no additional composites or data sources. Missing indicators remain explicit. Charts show each indicator's own configured standardized transformation rather than raw rates, and contextual indicators are not assigned directional good/bad interpretations.
 
 Indicator Research also includes a deterministic **Analyst reading**. It distinguishes actual growth from historical position and compares the transformed input with exactly three months earlier when available. This differs from the dashboard's standardized momentum statistic, whose sign alone cannot establish that the underlying measure is rising or falling.
+
+## Cross-indicator research
+
+Below the thematic Overview, **Cross-indicator research** provides four focused comparisons: hours/payrolls, claims/payrolls, equipment orders/industrial production, and real income/sentiment. The selected pair has aligned five-year charts, a shared-month reading and a dynamic interpretation. Switch **Chart lens** between standardized signals and the underlying configured economic measures; the latter use individual units and scales.
+
+Calculations use the latest month with finite signals and transformed inputs for both indicators. Newer individual readings are labelled separately. Agreement/divergence concerns historical position; recent strengthening/weakening uses the actual direction-adjusted transformed change from exactly three months earlier. Missing comparison months are not filled. Explanations update after data refresh, while the economic mechanism and qualifications remain fixed. Relationships are defined in `config/research_comparisons.yaml`.
