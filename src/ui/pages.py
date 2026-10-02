@@ -89,7 +89,15 @@ def _heatmap(project_root: str, category: str):
 
 def _composite_metrics(project_root: str, category: str):
     comp=cached_composite(project_root,category)
-    return comp, _latest(comp,"score"), _latest(comp,"positive_breadth"), int(_latest(comp,"coverage")) if not pd.isna(_latest(comp,"coverage")) else 0
+    if comp.empty or not comp["score"].notna().any():
+        return comp, np.nan, np.nan, 0
+    latest_valid = comp.loc[comp["score"].notna()].iloc[-1]
+    return (
+        comp,
+        latest_valid["score"],
+        latest_valid["positive_breadth"],
+        int(latest_valid["coverage"]) if not pd.isna(latest_valid["coverage"]) else 0,
+    )
 
 
 def render_overview(project_root: str):
