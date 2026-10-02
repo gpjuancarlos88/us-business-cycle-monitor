@@ -642,7 +642,7 @@ def render_overview(project_root: str):
         for dt,val in active.items():
             if val==1 and start is None: start=dt
             elif val==0 and start is not None:
-                fig.add_vrect(x0=start,x1=dt,opacity=.11,line_width=0); start=None
+                fig.add_vrect(x0=start,x1=dt,fillcolor="#6D7275",opacity=.22,line_width=0,layer="below"); start=None
     fig.add_hline(y=0,line_dash="dash",opacity=.5)
     fig.update_layout(
         template="plotly_dark",
