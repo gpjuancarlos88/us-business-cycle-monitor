@@ -250,14 +250,19 @@ def setup_page(title: str):
         text-transform: uppercase;
     }
     .st-key-overview_refresh {
-        display: flex;
-        justify-content: center;
         margin: .2rem 0 1.3rem 0;
+        text-align: center;
     }
     .st-key-overview_refresh [data-testid="stButton"] {
-        width: auto;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .st-key-overview_refresh [data-testid="stButton"] > div {
+        width: auto !important;
     }
     .st-key-overview_refresh button {
+        width: auto !important;
         min-width: 180px;
         border-radius: 0 !important;
         border: 1px solid rgba(199,214,213,0.28) !important;
