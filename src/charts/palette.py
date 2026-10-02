@@ -1,5 +1,7 @@
 """Stable identities across research, comparison and indicator charts."""
 INDICATOR_COLORS = {
+    "headline_pce": "#C9AA78", "core_pce": "#B5A2C8", "headline_cpi": "#8FAABF", "core_cpi": "#80B8B3",
+    "fed_target_lower": "#C7D6D5", "fed_target_upper": "#C9AA78", "effective_fed_funds": "#8FAABF", "sofr": "#B5A2C8", "treasury_10y": "#80B8B3",
     "manufacturing_hours": "#B5A2C8", "initial_claims": "#91B7A1",
     "consumer_goods_orders": "#C9AA78", "ism_new_orders": "#80B8B3",
     "cap_goods_ex_air": "#C9AA78", "building_permits": "#8FAABF",

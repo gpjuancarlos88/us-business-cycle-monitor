@@ -55,7 +55,7 @@ def test_easing_is_distinct_from_tight_level():
     financial['level']=[.8,.7,.5,.3]
     reading=economic_tensions(growth,inflation,financial)
     assert 'eased' in reading['summary']
-    assert 'historically tight' in reading['policy']
+    assert 'does not establish low benchmark rates' in reading['policy']
 
 
 def test_shared_month_not_individual_latest():

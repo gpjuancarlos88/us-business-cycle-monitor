@@ -4,7 +4,7 @@ A personal Python/Streamlit macroeconomic dashboard organized around **leading, 
 
 ## What V1 includes
 
-- 21 configured macro indicators.
+- 21 cycle indicators plus 9 contextual inflation and interest-rate series.
 - FRED ingestion through public CSV endpoints (no FRED API key required for V1).
 - Long-history S&P 500 ingestion from Yahoo Finance (`^GSPC`).
 - Explicit manual/licensed slot for ISM Manufacturing New Orders.
@@ -129,9 +129,9 @@ Feeds are loaded concurrently, cached in Streamlit for one hour and locally in `
 
 ## Economic themes and analyst readings
 
-Overview groups the 21 indicators into six economic channels, each with a guiding question, dated observations, a five-year standardized signal chart and a visible primary-indicator reading. Expand **Interpretation & transmission** for the remaining indicator readings, economic mechanisms and scope qualifications. **Cycle anatomy** connects the demand pipeline, current activity, labor/income and financial feedback. The original cycle heatmaps, composite history and lagging table remain below.
+Overview groups the 30 configured series into six economic channels, each with a guiding question and dated observations. Most themes have five-year standardized signal charts and a visible primary-indicator reading; inflation shows actual rates and financial conditions also shows nominal borrowing benchmarks. Expand the detail panels for remaining indicator readings, economic mechanisms and scope qualifications. **Cycle anatomy** connects the demand pipeline, current activity, labor/income and financial feedback. The original cycle heatmaps, composite history and lagging table remain below.
 
-Themes are configured in `config/economic_sections.yaml`; they introduce no additional composites or data sources. Missing indicators remain explicit. Charts show each indicator's own configured standardized transformation rather than raw rates, and contextual indicators are not assigned directional good/bad interpretations.
+Themes are configured in `config/economic_sections.yaml`; the nine contextual series do not enter the original leading or coincident composites. Missing indicators remain explicit. Standardized charts show each indicator's own configured transformation; the inflation and nominal-rate charts use actual percent units. Contextual indicators are not assigned directional good/bad interpretations.
 
 Indicator Research also includes a deterministic **Analyst reading**. It distinguishes actual growth from historical position and compares the transformed input with exactly three months earlier when available. This differs from the dashboard's standardized momentum statistic, whose sign alone cannot establish that the underlying measure is rising or falling.
 
@@ -143,10 +143,18 @@ Calculations use the latest month with finite signals and transformed inputs for
 
 ## Economic tensions
 
-The Overview now connects the Coincident Composite, services CPI YoY and NFCI at their latest shared valid month. It shows the three current readings and exact three-month changes, a dynamic joint interpretation, and conditional policy-transmission implications. Expand **Supporting evidence, mechanism & limits** for the evidence table, standardized history, definitions and qualifications.
+The Overview connects the Coincident Composite, headline PCE YoY and NFCI at their latest shared valid month. It shows the three current readings and exact three-month changes, a dynamic joint interpretation, and conditional policy-transmission implications. Expand **Supporting evidence, mechanism & limits** for the evidence table, standardized history, definitions and qualifications.
 
-Services pressure is called persistent only when YoY inflation is positive and its standardized signal is above +0.25σ in each of three consecutive months. This compares services inflation with its own history, not with the Fed's inflation target. Financial tightening/easing uses the actual NFCI change, separate from its source-average level and the dashboard's inverted rolling signal. Missing three-month baselines withhold the directional tension case. These are educational mechanisms rather than policy forecasts.
+PCE pressure is elevated when its actual YoY rate exceeds the Fed's 2% longer-run goal, and persistent when it exceeds that reference in three consecutive months. The historical Z-score is a separate comparison: near-average inflation can still be above target. Financial tightening/easing uses the actual NFCI change, separate from its source-average level and the dashboard's inverted rolling signal. An improving NFCI does not establish low borrowing costs. Missing three-month baselines withhold the directional tension case. Policy-transmission explanations are conditional scenarios, not descriptions of an actual policy action or forecasts.
 
 [Policy-transmission background](https://www.federalreserve.gov/aboutthefed/fedexplained/monetary-policy.htm) and [NFCI methodology](https://www.chicagofed.org/research/data/nfci/about) provide the primary-source background.
 
 The Overview's numbered chapters, shorter visible readings and expandable guides reduce default text density. Indicator colors are defined centrally in `src/charts/palette.py` and remain consistent across chart views; heatmap colors continue to encode values.
+
+## Inflation and borrowing costs
+
+**Inflation & cost pressure** shows headline/core CPI and PCE YoY rates, observation months, a five-year actual-rate chart and headline PCE's gap to the 2% longer-run goal. The detail panel adds MoM and three-month annualized momentum. The 2% line is the headline PCE goal and a core PCE reference, not a CPI target. Rates are calculated from seasonally adjusted FRED price indices; CPI YoY may differ slightly from BLS's published unadjusted YoY rates. Services CPI and manufacturing unit labor costs remain available as supporting detail.
+
+**Financial conditions** adds the latest daily Fed target range, last detected range change, effective federal funds rate, overnight SOFR and 10-year Treasury yield. Change dates are when a new range was first observed in the loaded data, not FOMC announcement dates. Floating-rate loan costs depend on the contractual benchmark convention plus spreads, floors and fees; neither NFCI nor the 10-year Treasury yield is a floating-loan coupon. Actual nominal-rate history and transmission explanations are expandable.
+
+All readings update from downloaded data after **Refresh all data**; no current rates or policy decisions are hardcoded. The header uses actual raw observation dates rather than monthly aggregation labels. The latest policy range and each benchmark can have different dates; the joint tensions section deliberately uses a shared month.

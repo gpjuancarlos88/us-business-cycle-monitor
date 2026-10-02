@@ -1,37 +1,82 @@
 sections:
-  - id: growth
-    title: Growth & activity
-    question: Is current activity strengthening broadly?
-    indicators: [industrial_production, real_manufacturing_trade_sales, payrolls]
-    mechanism: Production, real sales and employment provide complementary views of current activity. Agreement across them is more informative than an isolated strong reading.
-    qualification: These are business-cycle measures, not a GDP estimate. A positive standardized growth signal can coexist with negative actual growth.
-  - id: labor
-    title: Labor market
-    question: Are firms adjusting hours, jobs or layoffs?
-    indicators: [manufacturing_hours, initial_claims, unemployment_duration]
-    mechanism: Firms can adjust hours before headcount. Claims capture new unemployment-insurance filings; unemployment duration describes how long job seekers remain out of work.
-    qualification: Weekly claims are smoothed before monthly comparison. Manufacturing hours describe one sector; duration can remain elevated after hiring recovers.
-  - id: households
-    title: Household demand
-    question: Do income and confidence support spending?
-    indicators: [real_income_ex_transfers, consumer_goods_orders, consumer_expectations, consumer_credit_income]
-    mechanism: Real income supports purchasing power, orders capture demand entering manufacturers' pipelines, and sentiment reflects households' perceptions. Credit relative to income adds a balance-sheet perspective.
-    qualification: Sentiment and factory orders are indirect spending evidence. This section does not yet include direct consumption or retail-sales measures; credit growth alone is not evidence of household strength.
-  - id: investment
-    title: Investment & inventories
-    question: What is entering the future activity pipeline?
-    indicators: [cap_goods_ex_air, building_permits, ism_new_orders, inventory_sales_ratio]
-    mechanism: Equipment orders and housing permits precede production and construction. Survey orders add breadth, while inventories relative to sales can reveal a mismatch between supply and demand.
-    qualification: Orders and permits are intentions, not completed investment. Inventory accumulation can reflect planned stocking or disappointing sales. Missing licensed ISM data remain visible as a gap.
-  - id: inflation
-    title: Inflation & cost pressure
-    question: Are domestic price and labor costs easing?
-    indicators: [services_inflation, unit_labor_costs]
-    mechanism: Services inflation tracks price pressure in consumer services. Unit labor costs link compensation to productivity and help explain firms' margin and pricing pressures.
-    qualification: Services CPI is not headline CPI or the Fed's PCE target. Manufacturing unit labor costs are sector-specific and quarterly; neither series alone establishes the inflation outlook.
-  - id: financial
-    title: Financial conditions
-    question: Are financing and market expectations supportive?
-    indicators: [financial_conditions, yield_spread, sp500, prime_rate, real_ci_loans]
-    mechanism: Financial conditions, the yield spread and equity returns summarize different market channels. Prime rates affect borrowing costs; real business loans describe credit outstanding.
-    qualification: Prices reflect more than growth expectations. Yield-curve steepening can accompany rate cuts during weakness, and loan balances cannot separate credit supply from credit demand.
+- id: growth
+  title: Growth & activity
+  question: Is current activity strengthening broadly?
+  indicators:
+  - industrial_production
+  - real_manufacturing_trade_sales
+  - payrolls
+  mechanism: Production, real sales and employment provide complementary views of current activity. Agreement across them
+    is more informative than an isolated strong reading.
+  qualification: These are business-cycle measures, not a GDP estimate. A positive standardized growth signal can coexist
+    with negative actual growth.
+- id: labor
+  title: Labor market
+  question: Are firms adjusting hours, jobs or layoffs?
+  indicators:
+  - manufacturing_hours
+  - initial_claims
+  - unemployment_duration
+  mechanism: Firms can adjust hours before headcount. Claims capture new unemployment-insurance filings; unemployment duration
+    describes how long job seekers remain out of work.
+  qualification: Weekly claims are smoothed before monthly comparison. Manufacturing hours describe one sector; duration can
+    remain elevated after hiring recovers.
+- id: households
+  title: Household demand
+  question: Do income and confidence support spending?
+  indicators:
+  - real_income_ex_transfers
+  - consumer_goods_orders
+  - consumer_expectations
+  - consumer_credit_income
+  mechanism: Real income supports purchasing power, orders capture demand entering manufacturers' pipelines, and sentiment
+    reflects households' perceptions. Credit relative to income adds a balance-sheet perspective.
+  qualification: Sentiment and factory orders are indirect spending evidence. This section does not yet include direct consumption
+    or retail-sales measures; credit growth alone is not evidence of household strength.
+- id: investment
+  title: Investment & inventories
+  question: What is entering the future activity pipeline?
+  indicators:
+  - cap_goods_ex_air
+  - building_permits
+  - ism_new_orders
+  - inventory_sales_ratio
+  mechanism: Equipment orders and housing permits precede production and construction. Survey orders add breadth, while inventories
+    relative to sales can reveal a mismatch between supply and demand.
+  qualification: Orders and permits are intentions, not completed investment. Inventory accumulation can reflect planned stocking
+    or disappointing sales. Missing licensed ISM data remain visible as a gap.
+- id: inflation
+  title: Inflation & cost pressure
+  question: What are headline and underlying inflation doing relative to policy goals?
+  indicators:
+  - headline_pce
+  - core_pce
+  - headline_cpi
+  - core_cpi
+  - services_inflation
+  - unit_labor_costs
+  mechanism: CPI and PCE measure consumer prices using different coverage and weights. Headline includes food and energy;
+    core excludes them. The Fed’s longer-run 2% inflation goal is defined on headline PCE, while core PCE helps assess underlying
+    pressure.
+  qualification: A historical Z-score is separate from the inflation rate and its gap to target. Falling above-target inflation
+    is disinflation, not price stability at target. Rates calculated from seasonally adjusted CPI indices can differ slightly
+    from BLS published unadjusted YoY rates.
+- id: financial
+  title: Financial conditions
+  question: Are financing and market expectations supportive?
+  indicators:
+  - financial_conditions
+  - yield_spread
+  - sp500
+  - prime_rate
+  - real_ci_loans
+  - fed_target_lower
+  - fed_target_upper
+  - effective_fed_funds
+  - sofr
+  - treasury_10y
+  mechanism: Financial conditions, the yield spread and equity returns summarize different market channels. Prime rates affect
+    borrowing costs; real business loans describe credit outstanding.
+  qualification: Prices reflect more than growth expectations. Yield-curve steepening can accompany rate cuts during weakness,
+    and loan balances cannot separate credit supply from credit demand. Nominal benchmarks and the latest observed policy-range
+    change are shown separately from NFCI; easier broad conditions do not establish cheap floating-rate borrowing.

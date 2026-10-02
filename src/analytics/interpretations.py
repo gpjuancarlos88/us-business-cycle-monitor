@@ -13,6 +13,10 @@ TRANSFORM_NAMES = {
 }
 
 CAVEATS = {
+    "headline_pce": "The Fed’s 2% longer-run inflation goal is defined on headline PCE. A historical average is a separate reference.",
+    "core_pce": "Core PCE excludes food and energy; 2% is shown as a reference, while the formal longer-run goal is defined on headline PCE.",
+    "headline_cpi": "CPI and PCE use different weights and coverage. CPI is not the measure defining the Fed’s 2% goal.",
+    "core_cpi": "Core CPI excludes food and energy. It is not core PCE or the Fed’s target measure.",
     "manufacturing_hours": "Hours can adjust before headcount, but manufacturing is only one part of the labor market.",
     "initial_claims": "The signal compares claims growth with its historical norm; it does not measure the unemployment rate.",
     "consumer_goods_orders": "Factory orders describe the demand pipeline rather than completed household consumption.",
@@ -62,6 +66,12 @@ def indicator_reading(spec: dict, metrics: pd.DataFrame) -> dict:
     elif _finite(row.get("level")) and transform == "ism_distance_50":
         level = float(row["level"])
         text.append(f"The index is {level:.1f}, {'above' if level > 50 else 'below' if level < 50 else 'at'} the 50 threshold.")
+    reference = spec.get("policy_reference", spec.get("comparison_reference"))
+    if reference is not None and _finite(actual):
+        gap = float(actual) - float(reference)
+        position_to_reference = "above" if gap > 1e-10 else "below" if gap < -1e-10 else "at"
+        label = "Fed’s longer-run goal" if "policy_reference" in spec else "PCE comparison reference"
+        text.append(f"It is {position_to_reference} the {float(reference):g}% {label} (gap {gap:+.2f} percentage points).")
     if _finite(signal):
         position = "above" if signal > .25 else "below" if signal < -.25 else "near"
         if direction == -1:

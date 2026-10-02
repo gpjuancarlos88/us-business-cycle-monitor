@@ -10,6 +10,7 @@ import yaml
 
 from src.analytics.interpretations import indicator_reading
 from src.charts.palette import indicator_color
+from src.ui.policy import render_inflation, render_policy_rates
 
 def chapter_header(number, label, title, subtitle):
     st.markdown(f"<div class='research-intro'><div class='research-eyebrow'><span class='chapter-number'>{number:02d}</span> / {escape(label)}</div>"
@@ -62,7 +63,10 @@ def render_reading(spec, metrics, compact=False):
     reading = indicator_reading(spec, metrics)
     if reading["date"] is not None:
         st.caption(f"{reading['date'].strftime('%b %Y')} · {spec['category'].title()} · {reading['state']}")
-    st.write(concise_text(reading["text"]) if compact else reading["text"])
+    summary = concise_text(reading["text"])
+    if spec.get("policy_reference") is not None or spec.get("comparison_reference") is not None:
+        summary = ". ".join(reading["text"].split(". ")[:2]).rstrip(".") + "."
+    st.write(summary if compact else reading["text"])
     if compact:
         with st.expander("Reading details & qualifications", expanded=False):
             st.write(reading["text"])
@@ -71,7 +75,7 @@ def render_reading(spec, metrics, compact=False):
         st.caption(reading["qualification"])
 
 
-def render_economic_overview(project_root, registry, metric_loader):
+def render_economic_overview(project_root, registry, metric_loader, raw_loader=None):
     sections = load_sections(project_root)
     specs = {spec["id"]: spec for spec in registry}
     metrics = {key: metric_loader(project_root, key) for key in specs}
@@ -85,9 +89,17 @@ def render_economic_overview(project_root, registry, metric_loader):
                         f"<div class='theme-heading'><span class='theme-number'>{offset + position + 1:02d}</span>"
                         f"<h4>{escape(section['title'])}</h4></div>"
                         f"<div class='theme-question'>{escape(section['question'])}</div>", unsafe_allow_html=True)
+                    if section["id"] == "inflation":
+                        render_inflation(specs, metrics)
+                        with st.expander("Services & manufacturing cost detail", expanded=False):
+                            for key in ["services_inflation", "unit_labor_costs"]:
+                                st.markdown(f"**{specs[key]['name']}**")
+                                render_reading(specs[key], metrics[key])
+                        continue
+                    chart_section = dict(section, indicators=[key for key in section["indicators"] if specs[key].get("context_type") != "rates"])
                     rows = []
                     available = 0
-                    for key in section["indicators"]:
+                    for key in chart_section["indicators"]:
                         reading = indicator_reading(specs[key], metrics[key])
                         available += reading["signal"] is not None
                         value = f"{reading['signal']:+.2f}σ" if reading["signal"] is not None else "N/A"
@@ -96,18 +108,20 @@ def render_economic_overview(project_root, registry, metric_loader):
                                     f"<span class='theme-date'>{date}</span><strong>{value}</strong></div>")
                     st.markdown("<div class='theme-evidence'>" + "".join(rows) + "</div>", unsafe_allow_html=True)
                     if available:
-                        st.plotly_chart(theme_chart(section, specs, metrics), use_container_width=True, config={"displayModeBar": False}, key=f"chart_{section['id']}")
+                        st.plotly_chart(theme_chart(chart_section, specs, metrics), use_container_width=True, config={"displayModeBar": False}, key=f"chart_{section['id']}")
                     else:
                         st.caption("Historical signals will appear when sufficient observations are available.")
-                    st.caption(f"Five-year signal history · {available}/{len(section['indicators'])} current standardized readings")
+                    st.caption(f"Five-year signal history · {available}/{len(chart_section['indicators'])} current standardized readings")
                     primary = section["indicators"][0]
                     brief = indicator_reading(specs[primary], metrics[primary])
                     st.markdown(f"<div class='theme-brief'><span>{escape(specs[primary]['short_name'])}</span>"
                                 f"<p>{escape(concise_text(brief['text']))}</p></div>", unsafe_allow_html=True)
+                    if section["id"] == "financial" and raw_loader is not None:
+                        render_policy_rates(specs, raw_loader, project_root)
                     with st.expander("Interpretation & transmission", expanded=False):
                         st.write(section["mechanism"])
                         st.caption(section["qualification"])
-                        for key in section["indicators"]:
+                        for key in chart_section["indicators"]:
                             st.markdown(f"**{specs[key]['name']}**")
                             render_reading(specs[key], metrics[key])
     st.caption("Five-year histories · indicator colors remain consistent · observations can differ by month")
@@ -210,24 +224,26 @@ def render_cross_indicator_research(project_root, registry, metric_loader):
 def render_economic_tensions(project_root, metric_loader, composite_loader):
     from src.analytics.tensions import economic_tensions
     growth = composite_loader(project_root, "coincident")
-    inflation = metric_loader(project_root, "services_inflation")
+    inflation = metric_loader(project_root, "headline_pce")
     financial = metric_loader(project_root, "financial_conditions")
-    reading = economic_tensions(growth, inflation, financial)
+    reading = economic_tensions(growth, inflation, financial, price_label="PCE", policy_reference=2.0)
     chapter_header(3, "ECONOMIC TENSIONS", "Growth, price pressure and the financing channel.", "Read the trade-offs behind policy transmission.")
     with st.container(key="economic_tensions"):
         st.markdown(f"<div class='tension-heading'>{escape(reading['headline'])}</div>", unsafe_allow_html=True)
         if reading["date"] is None:
             st.caption(reading["summary"])
             return
-        st.caption(f"Shared evidence · {reading['date'].strftime('%b %Y')} · services CPI is the inflation lens")
+        st.caption(f"Shared evidence · {reading['date'].strftime('%b %Y')} · headline PCE is the inflation lens · target comparison uses 2%")
         columns = st.columns(3)
         for column, evidence in zip(columns, reading["evidence"]):
             column.metric(evidence["Channel"], evidence["Shared reading"])
             column.caption(evidence["Measure"])
             column.caption(f"3M change: {evidence['3M change']}")
         st.write(concise_text(reading["summary"]))
+        st.caption(f"Inflation target comparison · {reading['evidence'][1]['Interpretation']}")
         st.markdown("**Policy transmission**")
         st.write(concise_text(reading["policy"]))
+        st.caption("Conditional transmission scenario. Current policy actions and nominal borrowing benchmarks are shown in Financial conditions; NFCI improvement does not mean low loan rates.")
         with st.expander("Supporting evidence, mechanism & limits", expanded=False):
             st.dataframe(pd.DataFrame(reading["evidence"]), use_container_width=True, hide_index=True)
             st.write(reading["summary"])
@@ -235,7 +251,7 @@ def render_economic_tensions(project_root, metric_loader, composite_loader):
             if reading["history"]:
                 fig = go.Figure()
                 keys = {"growth": ("Coincident composite", "coincident_composite"),
-                        "inflation": ("Services inflation · contextual", "services_inflation"),
+                        "inflation": ("Headline PCE inflation · contextual", "headline_pce"),
                         "financial": ("Financial conditions · direction adjusted", "financial_conditions")}
                 end = max(values.index.max() for values in reading["history"].values())
                 start = end - pd.DateOffset(years=5)
@@ -251,7 +267,7 @@ def render_economic_tensions(project_root, metric_loader, composite_loader):
                 fig.update_xaxes(range=[start,end],showgrid=False)
                 fig.update_yaxes(range=[-3.2,3.2],ticksuffix="σ",gridcolor="rgba(199,214,213,.08)")
                 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key="tensions_history")
-                st.caption("Standardized history, not a combined score. Positive growth/financial signals are stronger or easier relative to their rolling norms; positive services inflation signals mean above-normal price pressure.")
+                st.caption("Standardized history, not a combined score. Positive growth/financial signals are stronger or easier relative to their rolling norms; positive PCE inflation signals mean above-historical-norm price pressure, independently of the 2% goal.")
             for detail in reading["details"]:
                 st.write(detail)
             st.markdown("[Monetary policy transmission · Federal Reserve](https://www.federalreserve.gov/aboutthefed/fedexplained/monetary-policy.htm) · [NFCI methodology · Chicago Fed](https://www.chicagofed.org/research/data/nfci/about)")

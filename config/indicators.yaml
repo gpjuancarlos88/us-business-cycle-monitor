@@ -329,3 +329,149 @@ indicators:
     exact: true
     description: Measures the prime lending rate posted by major U.S. commercial banks, converted to a monthly average in this dashboard. The prime rate is commonly used as a reference rate for business loans, credit cards, and other forms of variable-rate borrowing.
     why_it_matters: The prime rate closely follows Federal Reserve policy changes and affects borrowing costs across the economy. Because policy rates are often raised after inflation and growth have already strengthened, and cut only after conditions weaken, the prime rate is considered a lagging indicator.
+
+  - id: headline_cpi
+    name: Headline CPI Inflation
+    short_name: Headline CPI
+    category: context
+    provider: fred
+    series_id: CPIAUCSL
+    frequency: monthly
+    units: price_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    context_type: inflation
+    description: BLS consumer prices for all items. Dashboard growth rates are calculated from seasonally adjusted price indices.
+    why_it_matters: Tracks headline consumer-price pressure across goods and services. Compare the rate of inflation, its recent direction and the relevant policy reference separately; a near-average Z-score does not mean inflation is at target.
+
+  - id: core_cpi
+    name: Core CPI Inflation
+    short_name: Core CPI
+    category: context
+    provider: fred
+    series_id: CPILFESL
+    frequency: monthly
+    units: price_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    context_type: inflation
+    description: BLS consumer prices excluding food and energy. Dashboard growth rates are calculated from seasonally adjusted price indices.
+    why_it_matters: Tracks underlying consumer-price pressure excluding volatile food and energy. Compare the rate of inflation, its recent direction and the relevant policy reference separately; a near-average Z-score does not mean inflation is at target.
+
+  - id: headline_pce
+    name: Headline PCE Inflation
+    short_name: Headline PCE
+    category: context
+    provider: fred
+    series_id: PCEPI
+    frequency: monthly
+    units: price_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    context_type: inflation
+    description: BEA prices for personal consumption expenditures across all items. Dashboard growth rates are calculated from seasonally adjusted price indices.
+    why_it_matters: Tracks the broad inflation measure used for the Fed’s longer-run inflation goal. Compare the rate of inflation, its recent direction and the relevant policy reference separately; a near-average Z-score does not mean inflation is at target.
+    policy_reference: 2.0
+
+  - id: core_pce
+    name: Core PCE Inflation
+    short_name: Core PCE
+    category: context
+    provider: fred
+    series_id: PCEPILFE
+    frequency: monthly
+    units: price_index
+    monthly_aggregation: last
+    signal_transform: yoy_pct
+    direction: 0
+    exact: true
+    context_type: inflation
+    description: BEA personal consumption prices excluding food and energy. Dashboard growth rates are calculated from seasonally adjusted price indices.
+    why_it_matters: Tracks underlying PCE price pressure without volatile food and energy. Compare the rate of inflation, its recent direction and the relevant policy reference separately; a near-average Z-score does not mean inflation is at target.
+    comparison_reference: 2.0
+
+  - id: fed_target_lower
+    name: Federal Funds Target Range — Lower Bound
+    short_name: Fed target lower
+    category: context
+    provider: fred
+    series_id: DFEDTARL
+    frequency: daily
+    units: percent
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: true
+    context_type: rates
+    description: Lower bound of the FOMC federal funds target range. It is a policy setting rather than a measure of broad financial conditions.
+    why_it_matters: The nominal rate level affects financing costs. A decline in a broad financial-conditions index does not imply that this benchmark or a borrower’s contractual rate is low.
+
+  - id: fed_target_upper
+    name: Federal Funds Target Range — Upper Bound
+    short_name: Fed target upper
+    category: context
+    provider: fred
+    series_id: DFEDTARU
+    frequency: daily
+    units: percent
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: true
+    context_type: rates
+    description: Upper bound of the FOMC federal funds target range. Daily observations identify changes without smoothing them into monthly averages.
+    why_it_matters: The nominal rate level affects financing costs. A decline in a broad financial-conditions index does not imply that this benchmark or a borrower’s contractual rate is low.
+
+  - id: effective_fed_funds
+    name: Effective Federal Funds Rate
+    short_name: Effective fed funds
+    category: context
+    provider: fred
+    series_id: DFF
+    frequency: daily
+    units: percent
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: true
+    context_type: rates
+    description: Observed overnight effective federal funds rate. This is a market rate distinct from the policy target range.
+    why_it_matters: The nominal rate level affects financing costs. A decline in a broad financial-conditions index does not imply that this benchmark or a borrower’s contractual rate is low.
+
+  - id: sofr
+    name: Secured Overnight Financing Rate
+    short_name: SOFR
+    category: context
+    provider: fred
+    series_id: SOFR
+    frequency: daily
+    units: percent
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: true
+    context_type: rates
+    description: Overnight secured dollar funding benchmark. A SOFR-linked loan generally adds its contractual spread, floors and fees to its specified benchmark convention.
+    why_it_matters: The nominal rate level affects financing costs. A decline in a broad financial-conditions index does not imply that this benchmark or a borrower’s contractual rate is low.
+
+  - id: treasury_10y
+    name: 10-Year Treasury Yield
+    short_name: 10Y Treasury
+    category: context
+    provider: fred
+    series_id: DGS10
+    frequency: daily
+    units: percent
+    monthly_aggregation: last
+    signal_transform: level
+    direction: 0
+    exact: true
+    context_type: rates
+    description: Daily 10-year constant-maturity Treasury yield. It describes a long-term nominal benchmark rather than an individual borrower’s all-in financing cost.
+    why_it_matters: The nominal rate level affects financing costs. A decline in a broad financial-conditions index does not imply that this benchmark or a borrower’s contractual rate is low.

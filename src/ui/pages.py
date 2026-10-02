@@ -25,6 +25,13 @@ def cached_composite(project_root: str, category: str):
     return get_monitor(project_root).category_composite(category)
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_raw(project_root: str, indicator_id: str):
+    mon = get_monitor(project_root)
+    raw = mon.repo.load(indicator_id)
+    return mon.manager.refresh(indicator_id) if raw.empty else raw
+
+
 def setup_page(title: str):
     st.set_page_config(page_title=title, page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
     st.markdown("""
@@ -473,9 +480,9 @@ def _latest_data_date(project_root: str) -> pd.Timestamp | None:
     latest = []
     mon = get_monitor(project_root)
     for spec in mon.registry.all():
-        m = cached_metrics(project_root, spec["id"])
-        if not m.empty and "level" in m and m["level"].notna().any():
-            latest.append(pd.Timestamp(m["level"].dropna().index.max()))
+        raw = cached_raw(project_root, spec["id"])
+        if not raw.empty and raw["observation_date"].notna().any():
+            latest.append(pd.Timestamp(raw["observation_date"].max()))
     return max(latest) if latest else None
 
 
@@ -593,7 +600,7 @@ def render_overview(project_root: str):
                 unsafe_allow_html=True,
             )
 
-            render_economic_overview(project_root, mon.registry.all(), cached_metrics)
+            render_economic_overview(project_root, mon.registry.all(), cached_metrics, cached_raw)
             render_cross_indicator_research(project_root, mon.registry.all(), cached_metrics)
             render_economic_tensions(project_root, cached_metrics, cached_composite)
             chapter_header(4, "CYCLE EVIDENCE", "Timing, breadth and confirmation.", "The leading and coincident lenses behind the macro regime.")

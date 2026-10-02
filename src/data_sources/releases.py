@@ -22,10 +22,10 @@ FEEDS = {
 MAPPINGS = {
     "BLS": {
         "employment situation": ("manufacturing_hours", "payrolls", "unemployment_duration"),
-        "consumer price index": ("services_inflation",),
+        "consumer price index": ("services_inflation", "headline_cpi", "core_cpi"),
         "productivity and costs": ("unit_labor_costs",),
     },
-    "BEA": {"personal income and outlays": ("real_income_ex_transfers",)},
+    "BEA": {"personal income and outlays": ("real_income_ex_transfers", "headline_pce", "core_pce")},
     "Census": {
         "full report - manufacturers": ("consumer_goods_orders",),
         "advance report on durable goods": ("cap_goods_ex_air",),

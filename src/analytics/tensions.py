@@ -10,7 +10,7 @@ def _series(frame, name):
     return frame[name].replace([np.inf, -np.inf], np.nan).dropna().sort_index()
 
 
-def economic_tensions(growth, inflation, financial):
+def economic_tensions(growth, inflation, financial, price_label="services", policy_reference=None):
     series = {
         "growth": _series(growth, "score"),
         "inflation": _series(inflation, "signal"),
@@ -21,7 +21,7 @@ def economic_tensions(growth, inflation, financial):
     shared = None
     for values in series.values():
         shared = values.index if shared is None else shared.intersection(values.index)
-    empty = {"date": None, "headline": "Shared evidence unavailable", "summary": "Growth, services inflation and financial conditions need valid readings in the same month.", "policy": "A joint policy-transmission reading cannot be made until the three channels can be aligned.", "evidence": [], "details": [], "history": {}}
+    empty = {"date": None, "headline": "Shared evidence unavailable", "summary": f"Growth, {price_label} inflation and financial conditions need valid readings in the same month.", "policy": "A joint policy-transmission reading cannot be made until the three channels can be aligned.", "evidence": [], "details": [], "history": {}}
     if shared is None or shared.empty:
         return empty
     date = pd.Timestamp(shared.sort_values()[-1])
@@ -29,15 +29,17 @@ def economic_tensions(growth, inflation, financial):
     value = {key: float(values.loc[date]) for key, values in series.items()}
     changes = {key: float(values.loc[date] - values.loc[prior]) if prior in values.index else None
                for key, values in series.items()}
-    # Persistence is explicitly repeated above-norm services inflation, not an
-    # inflation-target test and not a statement about inflation expectations.
+    # Legacy services readings use historical pressure; the PCE lens uses its
+    # explicit policy reference. Neither estimates inflation expectations.
     persistence_dates = pd.date_range(end=date, periods=3, freq="ME")
     inflation_window = series["inflation"].reindex(persistence_dates)
     inflation_rates = series["inflation_rate"].reindex(persistence_dates)
     persistence_known = inflation_window.notna().all() and inflation_rates.notna().all()
     persistent = bool(persistence_known and (inflation_window > .25).all()
                       and (inflation_rates > 0).all())
-    elevated = value["inflation"] > .25 and value["inflation_rate"] > 0
+    if policy_reference is not None:
+        persistent = bool(persistence_known and (inflation_rates > policy_reference).all())
+    elevated = (value["inflation_rate"] > policy_reference) if policy_reference is not None else (value["inflation"] > .25 and value["inflation_rate"] > 0)
     weakening = changes["growth"] is not None and changes["growth"] < -1e-10
     strengthening = changes["growth"] is not None and changes["growth"] > 1e-10
     disinflating = changes["inflation_rate"] is not None and changes["inflation_rate"] < -1e-10 and value["inflation_rate"] > 0
@@ -51,15 +53,15 @@ def economic_tensions(growth, inflation, financial):
     elif weakening and elevated:
         headline = "Activity softening · services pressure persists" if persistent else "Activity softening · services pressure elevated"
         summary = "The coincident activity signal has weakened while services inflation remains above its own rolling norm. The growth and price-pressure channels pull in different directions."
-        policy = "Easier financing could support demand, while sustained services price pressure could complicate the inflation response. Tighter financing could restrain demand further. These are conditional transmission effects, not a recommendation or prediction of policy."
+        policy = "If financing costs were lowered, that could support demand, while sustained services price pressure could complicate the inflation response. Tighter financing could restrain demand further. These are conditional transmission effects, not a recommendation or prediction of policy."
     elif weakening and disinflating:
         headline = "Activity softening · services disinflation"
         summary = "The activity signal and the services inflation rate have both declined over three months. Weaker demand is one possible common explanation; this comparison does not establish causation."
-        policy = "Easier financing could cushion demand weakness; tighter conditions could amplify it. Services disinflation is relevant evidence, but it does not establish that broader inflation has reached the policy target."
+        policy = "If financing costs were lowered, that could cushion demand weakness; tighter conditions could amplify it. Services disinflation is relevant evidence, but it does not establish that broader inflation has reached the policy target."
     elif strengthening and elevated:
         headline = "Activity strengthening · services pressure elevated"
         summary = "The activity signal has strengthened while services inflation remains above its historical norm. Stronger activity does not by itself demonstrate overheating."
-        policy = "Supportive financing can reinforce demand and make the persistence of price pressure relevant to policy transmission. Tighter financing can temper demand, with timing and magnitude depending on borrower exposure and credit availability."
+        policy = "If financing were made more supportive, it could reinforce demand and make the persistence of price pressure relevant to policy transmission. Tighter financing can temper demand, with timing and magnitude depending on borrower exposure and credit availability."
     elif strengthening and disinflating:
         headline = "Activity strengthening · services disinflation"
         summary = "The activity signal has strengthened while the services inflation rate has fallen. Current activity and services disinflation are compatible in this snapshot."
@@ -73,7 +75,7 @@ def economic_tensions(growth, inflation, financial):
     if not incomplete and tightening:
         policy += " In this snapshot, tightening conditions add a potential restraint on demand, even if their level remains historically loose."
     elif not incomplete and easing:
-        policy += " In this snapshot, easing conditions could support demand, even if their level remains historically tight."
+        policy += " NFCI has improved in this snapshot; that does not establish low benchmark rates or low all-in borrowing costs."
     finance_text = "NFCI has tightened over three months." if tightening else "NFCI has eased over three months." if easing else "NFCI is unchanged over three months." if changes["nfci"] is not None else "NFCI's three-month change is unavailable."
     if not incomplete:
         summary += " " + finance_text
@@ -93,6 +95,21 @@ def economic_tensions(growth, inflation, financial):
     ]
     if any(values.index.max() > date for values in series.values()):
         details.append("Newer individual observations exist, but the joint reading uses the latest shared valid month.")
+    if policy_reference is not None:
+        summary = summary.replace("above its own rolling norm", f"above the {policy_reference:g}% longer-run goal").replace("above its historical norm", f"above the {policy_reference:g}% longer-run goal").replace("above-normal pressure", "above-target pressure")
+        gap = value["inflation_rate"] - policy_reference
+        target_state = "above" if gap > 1e-10 else "below" if gap < -1e-10 else "at"
+        summary += f" Headline PCE is {target_state} the {policy_reference:g}% goal (gap {gap:+.2f} percentage points)."
+        evidence[1]["Interpretation"] = f"{target_state.capitalize()} the {policy_reference:g}% goal · gap {gap:+.2f} pp; historical Z-score {value['inflation']:+.2f}σ"
+        details[0] = f"Persistence here means PCE YoY inflation exceeded {policy_reference:g}% in each of the latest three consecutive months." if persistence_known else "Three consecutive PCE observations are needed to assess above-target persistence."
+        details[1] = "The PCE inflation rate, its recent change, its historical Z-score and its gap to the Fed goal are distinct. A near-average Z-score never establishes that inflation is at target."
+        details[4] = "Headline PCE is the inflation lens. Core PCE, CPI and nominal rates are shown in the theme panels. Labor-market slack, inflation expectations and the neutral real policy rate are not modeled here."
+    policy += " Conditional easing is a scenario; the current policy range and nominal benchmarks must be read separately."
+    if price_label != "services":
+        headline = headline.replace("services", price_label)
+        summary = summary.replace("services", price_label).replace("Services", price_label)
+        policy = policy.replace("services", price_label).replace("Services", price_label)
+        evidence[1]["Measure"] = "Headline PCE · YoY"
     return {"date": date, "headline": headline, "summary": summary, "policy": policy, "evidence": evidence,
             "details": details, "history": {"growth": series["growth"], "inflation": series["inflation"], "financial": series["financial"]},
             "persistent": persistent, "incomplete": incomplete}
