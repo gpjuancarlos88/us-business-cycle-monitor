@@ -57,19 +57,19 @@ def setup_page(title: str):
         background: rgba(15, 23, 42, 0.97);
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: .65rem;
-        padding: .55rem .75rem .45rem .75rem;
+        padding: .9rem 1rem .85rem 1rem;
         box-shadow: 0 8px 24px rgba(0,0,0,0.30);
         backdrop-filter: blur(10px);
     }
     .st-key-top_nav + div {
         margin-top: 5.2rem;
     }
-    [data-testid="stPageLink"] {margin-top: .15rem;}
+    [data-testid="stPageLink"] {margin-top: 0; margin-bottom: 0;}
     [data-testid="stPageLink"] a {
         justify-content: center;
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: .45rem;
-        padding: .55rem .65rem;
+        padding: .7rem .8rem;
         background: rgba(255,255,255,0.025);
         text-decoration: none;
     }
