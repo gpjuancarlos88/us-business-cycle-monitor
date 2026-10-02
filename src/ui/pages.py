@@ -110,23 +110,24 @@ def setup_page(title: str):
         border-color: rgba(199,214,213,0.18) !important;
     }
     .overview-panel {
-        background: rgba(109,114,117,0.12);
-        border: 1px solid rgba(199,214,213,0.16);
-        border-radius: .75rem;
-        padding: 1rem 1.1rem 1.15rem 1.1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+        background: rgba(109,114,117,0.045);
+        border-top: 1px solid rgba(199,214,213,0.10);
+        border-bottom: 1px solid rgba(199,214,213,0.07);
+        border-radius: 0;
+        padding: 1rem .15rem 1.15rem .15rem;
+        margin-bottom: 1.1rem;
+        box-shadow: none;
     }
     .overview-panel-accent {
-        border-left: 4px solid var(--brick-ember);
+        border-top: 2px solid rgba(194,1,20,0.55);
     }
     .st-key-overview_left_rail {
-        background: rgba(109,114,117,0.14);
-        border: 1px solid rgba(199,214,213,0.20);
-        border-right: 3px solid var(--brick-ember);
-        border-radius: .8rem;
-        padding: 1.15rem 1.2rem 1.3rem 1.2rem;
-        box-shadow: 0 8px 22px rgba(0,0,0,0.20);
+        background: rgba(109,114,117,0.065);
+        border: none;
+        border-right: 1px solid rgba(199,214,213,0.14);
+        border-radius: 0;
+        padding: 1rem 1.35rem 1rem .25rem;
+        box-shadow: none;
         min-height: 100%;
     }
     .st-key-overview_left_rail h3 {
@@ -134,6 +135,11 @@ def setup_page(title: str):
     }
     .st-key-overview_main {
         padding-left: .25rem;
+    }
+    .st-key-overview_main h3,
+    .st-key-overview_left_rail h3 {
+        padding-bottom: .35rem;
+        border-bottom: 1px solid rgba(199,214,213,0.10);
     }
     </style>
     """, unsafe_allow_html=True)
