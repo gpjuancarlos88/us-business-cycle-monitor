@@ -1,3 +1,6 @@
 [server]
 runOnSave = true
 fileWatcherType = "auto"
+
+[theme]
+base = "dark"

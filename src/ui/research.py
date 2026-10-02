@@ -10,10 +10,11 @@ import yaml
 
 from src.analytics.interpretations import indicator_reading
 from src.charts.palette import indicator_color
+from src.charts.terminal import terminal_chart
 from src.ui.policy import render_inflation, render_policy_rates
 
 def chapter_header(number, label, title, subtitle):
-    st.markdown(f"<div class='research-intro'><div class='research-eyebrow'><span class='chapter-number'>{number:02d}</span> / {escape(label)}</div>"
+    st.markdown(f"<div class='research-intro' id='chapter-{number:02d}'><div class='research-eyebrow'><span class='chapter-number'>{number:02d}</span> / {escape(label)}</div>"
                 f"<h2>{escape(title)}</h2><p>{escape(subtitle)}</p></div>", unsafe_allow_html=True)
 
 
@@ -54,9 +55,9 @@ def theme_chart(section, specs, metrics):
         font=dict(family="Inter, Segoe UI, Arial", color="#C7D6D5", size=10),
         hovermode="x unified", legend=dict(orientation="h", y=1.02, yanchor="bottom", font=dict(size=10)),
     )
-    fig.update_xaxes(range=[start, end], showgrid=False, zeroline=False, tickformat="%Y")
+    fig.update_xaxes(range=[start, end], showgrid=False, zeroline=False, tickformat="%Y", dtick="M12")
     fig.update_yaxes(range=[-3.2, 3.2], tickvals=[-3, 0, 3], ticksuffix="σ", gridcolor="rgba(199,214,213,.07)", zeroline=False)
-    return fig
+    return terminal_chart(fig)
 
 
 def render_reading(spec, metrics, compact=False):
@@ -169,7 +170,7 @@ def comparison_chart(spec, metrics, column, start, end, shared_date, color):
     fig.update_yaxes(gridcolor="rgba(199,214,213,.08)", zeroline=False)
     if signal_view:
         fig.update_yaxes(range=[-3.2, 3.2], tickvals=[-3, -1.5, 0, 1.5, 3], ticksuffix="σ")
-    return fig
+    return terminal_chart(fig)
 
 
 def render_cross_indicator_research(project_root, registry, metric_loader):
@@ -266,7 +267,7 @@ def render_economic_tensions(project_root, metric_loader, composite_loader):
                                   font=dict(family="Inter, Segoe UI, Arial", color="#C7D6D5"), hovermode="x unified", legend=dict(orientation="h"))
                 fig.update_xaxes(range=[start,end],showgrid=False)
                 fig.update_yaxes(range=[-3.2,3.2],ticksuffix="σ",gridcolor="rgba(199,214,213,.08)")
-                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key="tensions_history")
+                st.plotly_chart(terminal_chart(fig), use_container_width=True, config={"displayModeBar": False}, key="tensions_history")
                 st.caption("Standardized history, not a combined score. Positive growth/financial signals are stronger or easier relative to their rolling norms; positive PCE inflation signals mean above-historical-norm price pressure, independently of the 2% goal.")
             for detail in reading["details"]:
                 st.write(detail)

@@ -56,7 +56,7 @@ def compare_indicators(left_spec, left, right_spec, right):
     elif trends[0] == trends[1]:
         text += " Both underlying directional measures are " + ("unchanged" if trends[0] == "unchanged" else trends[0]) + " versus three months earlier."
     else:
-        text += f"Over three months, {a['name']} is {a['trend']} and {b['name']} is {b['trend']}. Their recent directions differ."
+        text += f" Over three months, {a['name']} is {a['trend']} and {b['name']} is {b['trend']}. Their recent directions differ."
     if any(e["latest"] > date for e in evidence):
         text += " A newer individual reading is available, but this comparison uses the latest shared valid month."
     return {"date": date, "headline": headline, "relationship": relationship, "text": text, "evidence": evidence}

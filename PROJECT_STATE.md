@@ -88,7 +88,7 @@ A personal U.S. macroeconomic research terminal that monitors leading, coinciden
 - Recession shading uses visible Dim Grey bands behind the lines.
 
 ## Current UI direction
-Design target: professional institutional macro/research terminal, with inspiration from the SpaceX website's use of:
+The Overview now uses the command-console design described in the latest continuation below, replacing the earlier SpaceX-inspired layout. Other pages retain the previous institutional presentation. Earlier design principles included:
 - full-width sections
 - strong typography
 - restrained borders
@@ -97,6 +97,7 @@ Design target: professional institutional macro/research terminal, with inspirat
 - minimal card-like UI
 
 ### Palette
+Previous institutional palette (still used outside Overview):
 - Onyx: `#0C120C`
 - Brick Ember: `#C20114`
 - Dim Grey: `#6D7275`
@@ -306,3 +307,18 @@ Brick Ember should remain scarce and meaningful rather than decorative.
 - All actual inflation/rate/action readings update from ingested data on refresh; no September 2026 facts are hardcoded. A hike does not by itself establish inflation acceleration, and a high nominal rate does not estimate the neutral real rate or total borrower cost.
 - Verification: 51 tests pass, covering daily changes, absent/inverted target bounds, cuts/range reshaping, above-target inflation with zero historical Z-score, inflation snapshot availability and unchanged composite membership. Overview AppTest checks inflation metrics, target range, observed hike, SOFR and comparison controls using synthetic fixtures. Browser screenshot verification remains blocked by the preview environment.
 - To load the new series locally: pull `dev`, then use **Refresh all data**. No new dependencies.
+
+## Overview command-console overhaul — 2026-10-02
+- User explicitly authorized changing anything in Overview for a super-professional Tony Stark/Jarvis/futuristic look mixed with military styling.
+- New Overview-only stylesheet `src/ui/overview.css`: midnight steel `#070E14`, cyan `#54D9EA`, muted blue-grey `#94AEBA`, restrained amber `#CBB181`, thin borders, static grid and technical corner details. Green/rose remains reserved for cycle heatmap readings. No animated status indicators or invented live-feed claims.
+- `src/ui/overview.py` supplies a centered two-line title, static instrument emblem, accurate raw observation date, UTC view-refresh time, six chapter anchor links and a compact footer with actual cycle/context counts. Local Bahnschrift/Inter/Segoe UI and Consolas/Menlo font stacks avoid remote assets.
+- Removed the side rail and gave research the full content width. A compact two-column briefing holds upcoming official releases (three-column event grid on desktop) and coverage/breadth. Six thematic panels now have consistent steel surfaces, cyan top edges, technical labels and expandable detail.
+- Regime/growth/momentum appear in a framed instrument strip, followed by composite/breadth/coverage telemetry. The previously mislabeled “Latest common signal” is now “Latest composite month”, using the most recent valid composite observation; help makes differing dates explicit.
+- Overview composite captions describe above/near/below historical norm rather than using native metric delta arrows for position labels. Comparison copy has a missing sentence space corrected. Streamlit's default theme is explicitly dark to prevent white native tables/controls under a light OS preference; other pages retain their layouts and styles.
+- Dedicated Streamlit containers replace the old opening/closing HTML div placeholders around cycle/history/diagnostics. Refresh has a real centered container and immediately reruns after cache clearing so readings and the header update together.
+- `src/charts/terminal.py` supplies consistent axis typography, hover panels, grids and legends to all Overview charts without changing series colors/data. The Overview heatmap has spaced green/rose cells around a dark neutral center; category heatmaps keep their existing presentation.
+- Composite history adds 5Y/10Y/20Y/Full visible-axis windows, initially 10Y. Full underlying series and NBER shading are retained; only the viewing range changes. Diagnostic numeric columns use consistent two-decimal display.
+- Responsive CSS reflows navigation, release cards and telemetry at narrower widths. Reduced-motion preference disables smooth anchor scrolling. No new dependencies or data/methodology changes.
+- Verification: all 51 existing tests pass. Overview AppTest checks six theme panels, six working anchor targets, all 13 chart styles, inflation/policy metrics, relationship/lens controls, history range with identical underlying data, refresh/rerun and fully missing-data rendering. A separate Leading-page check confirms the console CSS and heatmap styling do not affect that page. Browser screenshots now work: inspected desktop 1920px, ultrawide 2560px and mobile 390px with no horizontal overflow or browser errors. Screenshots use synthetic fixture data, not production observations. Fixed the actual button alignment and Streamlit's heading-wrapper interaction after visual inspection.
+- Preview setup for this environment: scratch-installed `@sparticuz/chromium` plus runtime `playwright-core`; disable archive ownership changes during extraction where chown is unsupported. Run the fixture Streamlit server and browser as children of the same exec command so they share a network namespace. Preview tools are not project dependencies.
+- Latest design takes precedence over the earlier Overview layout/palette notes. Next session should preserve this console direction and refine it using the user's local display if needed.

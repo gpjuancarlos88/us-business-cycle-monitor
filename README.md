@@ -158,3 +158,11 @@ The Overview's numbered chapters, shorter visible readings and expandable guides
 **Financial conditions** adds the latest daily Fed target range, last detected range change, effective federal funds rate, overnight SOFR and 10-year Treasury yield. Change dates are when a new range was first observed in the loaded data, not FOMC announcement dates. Floating-rate loan costs depend on the contractual benchmark convention plus spreads, floors and fees; neither NFCI nor the 10-year Treasury yield is a floating-loan coupon. Actual nominal-rate history and transmission explanations are expandable.
 
 All readings update from downloaded data after **Refresh all data**; no current rates or policy decisions are hardcoded. The header uses actual raw observation dates rather than monthly aggregation labels. The latest policy range and each benchmark can have different dates; the joint tensions section deliberately uses a shared month.
+
+## Overview design
+
+The Overview uses a futuristic economic command-console design: dark steel surfaces, a subtle background grid, cyan framing, military-style section labels, monospaced data and a centered instrument header. A compact release/coverage briefing replaces the side rail, giving the six economic themes more width. Chapter links jump directly to economy, relationships, tensions, cycle signals, history and diagnostics.
+
+Charts share a restrained terminal treatment while retaining each indicator's established color. Overview heatmaps use green/rose signal colors around a dark neutral center. Composite history offers **5Y / 10Y / 20Y / Full** viewing windows (10Y initially); this changes the visible axis, not the data or calculations. Detailed explanations remain expandable.
+
+Presentation is isolated in `src/ui/overview.css`, `src/ui/overview.py` and `src/charts/terminal.py`. The Overview stylesheet is loaded only on that page; the other pages retain their current layout and styles. Streamlit defaults to a dark theme so native tables and controls stay readable independently of the operating system's theme. Typography uses local font fallbacks and the design requires no external images, font downloads or new dependencies. Narrow screens reflow the briefing, navigation and research panels; reduced-motion settings disable smooth scrolling.

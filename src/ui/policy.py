@@ -4,14 +4,15 @@ import plotly.graph_objects as go
 import streamlit as st
 from src.analytics.policy import inflation_snapshot, policy_snapshot, INFLATION_IDS, RATE_IDS
 from src.charts.palette import indicator_color
+from src.charts.terminal import terminal_chart
 
 
 def _chart_layout(fig, title):
     fig.update_layout(height=240, margin=dict(l=8,r=8,t=35,b=8), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                      font=dict(family='Inter, Segoe UI, Arial',color='#C7D6D5',size=10), hovermode='x unified', legend=dict(orientation='h'), yaxis_title=title)
-    fig.update_xaxes(showgrid=False)
+                      font=dict(family='Inter, Segoe UI, Arial',color='#C7D6D5',size=10), hovermode='x unified', legend=dict(orientation='h',y=1.02,yanchor='bottom'), yaxis_title=title)
+    fig.update_xaxes(showgrid=False,tickformat='%Y',dtick='M12')
     fig.update_yaxes(gridcolor='rgba(199,214,213,.08)')
-    return fig
+    return terminal_chart(fig)
 
 
 def render_inflation(specs, metrics):
