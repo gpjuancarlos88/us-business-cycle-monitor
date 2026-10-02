@@ -230,6 +230,12 @@ def render_indicator(project_root: str):
     spec=mon.registry.get(labels[name])
     m=cached_metrics(project_root,spec["id"])
     st.title(spec["name"])
+    category_label = {
+        "leading": "Leading Indicator",
+        "coincident": "Coincident Indicator",
+        "lagging": "Lagging Indicator",
+    }.get(spec.get("category"), str(spec.get("category","")).title())
+    st.markdown(f"**Type:** {category_label}")
     st.markdown("### What it is")
     st.write(spec.get("description",""))
     st.markdown("### Why it matters")
